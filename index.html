@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>การจัดเตรียมเอกสาร – Thailand Franchise Award</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,22 +16,21 @@
   .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
   .gold-line { height: 3px; background: linear-gradient(90deg,#C9A84C,#ECEBE6); margin: 14px 0 20px; border-radius: 2px; }
 
-  /* save bar */
-  .save-bar {
+  /* sync bar */
+  .sync-bar {
     display: flex; align-items: center; gap: 10px;
     background: #fff; border: 1px solid #E0DDD7; border-radius: 12px;
     padding: 10px 18px; margin-bottom: 18px; flex-wrap: wrap;
   }
-  .save-bar .save-status { font-size: 12px; color: #888; flex: 1; }
-  .save-bar .save-status.ok  { color: #2E7D32; }
-  .save-bar .save-status.err { color: #C62828; }
-  .btn-save, .btn-clear {
-    font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
-    padding: 7px 18px; border-radius: 8px; cursor: pointer; border: none; transition: all .2s;
-  }
-  .btn-save  { background: #2A2A3A; color: #C9A84C; }
-  .btn-save:hover  { background: #3D3D50; }
-  .btn-clear { background: #F0EDE8; color: #888; }
+  .sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #ccc; flex-shrink: 0; transition: background .3s; }
+  .sync-dot.connected { background: #4CAF50; box-shadow: 0 0 6px #4CAF5088; }
+  .sync-dot.syncing   { background: #FFA726; animation: pulse .8s infinite; }
+  .sync-dot.error     { background: #EF5350; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .sync-status { font-size: 12px; color: #888; flex: 1; }
+  .sync-status.ok  { color: #2E7D32; }
+  .sync-status.err { color: #C62828; }
+  .btn-clear { font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 8px; cursor: pointer; border: none; background: #F0EDE8; color: #888; transition: all .2s; }
   .btn-clear:hover { background: #E0DDD7; color: #555; }
 
   /* stats */
@@ -57,6 +57,8 @@
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: #FAF8F4; }
   tbody tr.hidden { display: none; }
+  tbody tr.flash { animation: flashRow .6s ease; }
+  @keyframes flashRow { 0%{background:#FFF8E1} 100%{background:transparent} }
   td { padding: 11px 14px; vertical-align: middle; }
   td:first-child { text-align: center; }
   .num-cell { text-align: center; color: #C9A84C; font-weight: 700; font-size: 13px; }
@@ -89,9 +91,21 @@
   .progress-bar  { height:10px; background:#ECEBE6; border-radius:10px; overflow:hidden; }
   .progress-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#E8C870); border-radius:10px; transition:width .5s ease; }
   .footer-note { margin-top:14px; font-size:11px; color:#AAA; text-align:center; }
+
+  /* loading overlay */
+  .loading-overlay { position:fixed; inset:0; background:#F5F3EEcc; display:flex; align-items:center; justify-content:center; z-index:999; flex-direction:column; gap:12px; }
+  .loading-overlay.hidden { display:none; }
+  .spinner { width:36px; height:36px; border:4px solid #E0DDD7; border-top-color:#C9A84C; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { font-size:14px; color:#888; }
 </style>
 </head>
 <body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">กำลังโหลดข้อมูล...</div>
+</div>
 
 <div class="header">
   <div class="logo-mark">JC</div>
@@ -102,12 +116,11 @@
 </div>
 <div class="gold-line"></div>
 
-<!-- Save Bar -->
-<div class="save-bar">
-  <span>💾</span>
-  <span class="save-status" id="saveStatus">ยังไม่ได้บันทึก — กด "บันทึก" เพื่อเก็บข้อมูลลงเครื่อง</span>
-  <button class="btn-save" onclick="saveAll()">💾 บันทึก</button>
-  <button class="btn-clear" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
+<!-- Sync Bar -->
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span class="sync-status" id="syncStatus">กำลังเชื่อมต่อ Supabase...</span>
+  <button class="btn-clear" onclick="clearAll()">🗑️ ล้างข้อมูลทั้งหมด</button>
 </div>
 
 <!-- Stats -->
@@ -148,10 +161,14 @@
   <div class="progress-label"><span>ความคืบหน้าโดยรวม</span><span id="progress-pct">0%</span></div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="footer-note">กด 💾 บันทึก เพื่อเก็บสถานะไว้ในเครื่อง · ติ๊กถูกหรือเลือกสถานะเพื่ออัปเดตความคืบหน้า</div>
+<div class="footer-note">การเปลี่ยนแปลงจะซิงค์แบบเรียลไทม์ทุกอุปกรณ์ · 🟢 = เชื่อมต่อแล้ว</div>
 
 <script>
-const STORAGE_KEY = 'tfa_jiancha_v1';
+const SUPABASE_URL  = 'https://tncespouzuslapdsgvza.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuY2VzcG91enVzbGFwZHNndnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Nzg4NjcsImV4cCI6MjA5NzE1NDg2N30.usH9zMfaFakEv-H8Ls2UfRdupKQgQBkwEBSyL6vNXLI';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const rowDefs = [
   { topic:"ตารางรายงานผลยอดขายต่อสัปดาห์",                            dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"ใช้ภาพประกอบจาก Foodstory · ยอดขายรายสัปดาห์ แยกตามสาขา" },
@@ -177,7 +194,7 @@ const rowDefs = [
   { topic:"ผู้รับผิดชอบและกำหนดส่งเอกสาร",                               dept:"all", deptLabel:"ทุกฝ่าย",          note:"ระบุชื่อผู้รับผิดชอบ กำหนดส่ง และผู้อนุมัติแต่ละหัวข้อ" }
 ];
 
-const deptClass = { ops:'dept-ops', mkt:'dept-mkt', biz:'dept-biz', hr:'dept-hr', fin:'dept-fin', it:'dept-it', all:'dept-all' };
+const deptClass  = { ops:'dept-ops', mkt:'dept-mkt', biz:'dept-biz', hr:'dept-hr', fin:'dept-fin', it:'dept-it', all:'dept-all' };
 const statusOpts = [
   { value:'todo',   label:'📋 ยังไม่เริ่ม',    cls:'todo'   },
   { value:'inprog', label:'🔄 กำลังดำเนินการ', cls:'inprog' },
@@ -185,45 +202,87 @@ const statusOpts = [
   { value:'urgent', label:'🔴 เร่งด่วน',        cls:'urgent' }
 ];
 
-let state = rowDefs.map(() => ({ checked:false, status:'todo' }));
+// local mirror of state, keyed by row_index
+let state = rowDefs.map((_, i) => ({ row_index: i, checked: false, status: 'todo' }));
+let isSyncing = false;
 
-/* ── localStorage ── */
-function saveAll() {
-  try {
-    const data = JSON.stringify(state);
-    localStorage.setItem(STORAGE_KEY, data);
-    const kb = Math.round(data.length * 2 / 1024);
-    setStatus(`✅ บันทึกสำเร็จ · ${kb} KB · ${new Date().toLocaleTimeString('th-TH')}`, 'ok');
-  } catch(e) {
-    setStatus('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
+/* ── UI helpers ── */
+function setSyncStatus(msg, type) {
+  document.getElementById('syncStatus').textContent = msg;
+  document.getElementById('syncStatus').className = 'sync-status ' + (type||'');
+  const dot = document.getElementById('syncDot');
+  dot.className = 'sync-dot ' + (type === 'ok' ? 'connected' : type === 'syncing' ? 'syncing' : type === 'err' ? 'error' : '');
+}
+
+/* ── Supabase: load all rows ── */
+async function loadFromDB() {
+  const { data, error } = await db.from('checklist_state').select('*');
+  if (error) { setSyncStatus('❌ โหลดข้อมูลไม่สำเร็จ: ' + error.message, 'err'); return; }
+  if (data && data.length > 0) {
+    data.forEach(row => {
+      if (state[row.row_index] !== undefined) {
+        state[row.row_index] = { row_index: row.row_index, checked: row.checked, status: row.status };
+      }
+    });
+  } else {
+    // First time: seed all rows into DB
+    const inserts = state.map(s => ({ row_index: s.row_index, checked: false, status: 'todo' }));
+    await db.from('checklist_state').upsert(inserts, { onConflict: 'row_index' });
   }
-}
-
-function loadAll() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const saved = JSON.parse(raw);
-    saved.forEach((s, i) => { if (state[i]) state[i] = { checked: s.checked||false, status: s.status||'todo' }; });
-    setStatus(`📂 โหลดข้อมูลแล้ว · ${new Date().toLocaleTimeString('th-TH')}`, 'ok');
-  } catch(e) { /* ignore */ }
-}
-
-function clearAll() {
-  if (!confirm('ล้างข้อมูลทั้งหมด (สถานะทั้งหมด) ใช่ไหม?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  state = rowDefs.map(() => ({ checked:false, status:'todo' }));
+  setSyncStatus('🟢 เชื่อมต่อแล้ว — ซิงค์แบบเรียลไทม์', 'ok');
+  document.getElementById('loadingOverlay').classList.add('hidden');
   buildTable();
-  setStatus('🗑️ ล้างข้อมูลแล้ว', '');
 }
 
-function setStatus(msg, type) {
-  const el = document.getElementById('saveStatus');
-  el.textContent = msg;
-  el.className = 'save-status ' + type;
+/* ── Supabase: update one row ── */
+async function updateRow(i) {
+  setSyncStatus('🔄 กำลังบันทึก...', 'syncing');
+  const { error } = await db.from('checklist_state')
+    .upsert({ row_index: i, checked: state[i].checked, status: state[i].status }, { onConflict: 'row_index' });
+  if (error) { setSyncStatus('❌ บันทึกไม่สำเร็จ', 'err'); return; }
+  setSyncStatus('🟢 บันทึกแล้ว · ' + new Date().toLocaleTimeString('th-TH'), 'ok');
 }
 
-/* ── table ── */
+/* ── Realtime subscription ── */
+function subscribeRealtime() {
+  db.channel('checklist_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'checklist_state' }, payload => {
+      const row = payload.new;
+      if (!row || row.row_index === undefined) return;
+      const i = row.row_index;
+      state[i] = { row_index: i, checked: row.checked, status: row.status };
+      // update UI for that row without full rebuild
+      const tr = document.getElementById('row-' + i);
+      if (!tr) return;
+      const cb  = tr.querySelector('.checkbox-custom');
+      const sel = tr.querySelector('.status-select');
+      cb.checked  = row.checked;
+      sel.value   = row.status;
+      styleSelect(sel, row.status);
+      tr.dataset.status = row.status;
+      tr.classList.toggle('row-done', row.checked);
+      tr.classList.add('flash');
+      setTimeout(() => tr.classList.remove('flash'), 700);
+      updateStats();
+      applyCurrentFilter();
+    })
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') setSyncStatus('🟢 เชื่อมต่อแล้ว — ซิงค์แบบเรียลไทม์', 'ok');
+    });
+}
+
+/* ── Clear all ── */
+async function clearAll() {
+  if (!confirm('ล้างสถานะทั้งหมดกลับเป็น "ยังไม่เริ่ม" ใช่ไหม?')) return;
+  state = rowDefs.map((_, i) => ({ row_index: i, checked: false, status: 'todo' }));
+  const inserts = state.map(s => ({ row_index: s.row_index, checked: false, status: 'todo' }));
+  setSyncStatus('🔄 กำลังล้างข้อมูล...', 'syncing');
+  await db.from('checklist_state').upsert(inserts, { onConflict: 'row_index' });
+  setSyncStatus('🟢 ล้างข้อมูลแล้ว', 'ok');
+  buildTable();
+}
+
+/* ── Build table ── */
 function buildTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -257,16 +316,14 @@ function buildTable() {
 
 function toggleCheck(i, el) {
   state[i].checked = el.checked;
-  if (el.checked) {
-    state[i].status = 'done';
-    const tr = el.closest('tr');
-    tr.dataset.status = 'done';
-    const sel = tr.querySelector('.status-select');
-    sel.value = 'done'; styleSelect(sel, 'done');
-  }
-  el.closest('tr').classList.toggle('row-done', el.checked);
+  if (el.checked) { state[i].status = 'done'; }
+  const tr = el.closest('tr');
+  tr.dataset.status = state[i].status;
+  const sel = tr.querySelector('.status-select');
+  sel.value = state[i].status; styleSelect(sel, state[i].status);
+  tr.classList.toggle('row-done', el.checked);
   updateStats(); applyCurrentFilter();
-  setStatus('แก้ไขแล้ว — อย่าลืมกด 💾 บันทึก', '');
+  updateRow(i);
 }
 
 function changeStatus(i, el) {
@@ -277,7 +334,7 @@ function changeStatus(i, el) {
   if (el.value === 'done') { state[i].checked=true; cb.checked=true; el.closest('tr').classList.add('row-done'); }
   else { state[i].checked=false; cb.checked=false; el.closest('tr').classList.remove('row-done'); }
   updateStats(); applyCurrentFilter();
-  setStatus('แก้ไขแล้ว — อย่าลืมกด 💾 บันทึก', '');
+  updateRow(i);
 }
 
 function styleSelect(el, val) {
@@ -300,26 +357,19 @@ function applyCurrentFilter() {
 
 function updateStats() {
   const done   = state.filter(s=>s.status==='done').length;
-  const inprog = state.filter(s=>s.status==='inprog').length;
-  const urgent = state.filter(s=>s.status==='urgent').length;
+  const inprog = state.filter(s=>s.status==='inprog'||s.status==='urgent').length;
   const todo   = state.filter(s=>s.status==='todo').length;
-  document.getElementById('stat-total').textContent  = rowDefs.length;
   document.getElementById('stat-done').textContent   = done;
-  document.getElementById('stat-inprog').textContent = inprog + urgent;
+  document.getElementById('stat-inprog').textContent = inprog;
   document.getElementById('stat-todo').textContent   = todo;
   const pct = Math.round(done/rowDefs.length*100);
   document.getElementById('progress-pct').textContent  = pct+'%';
   document.getElementById('progress-fill').style.width = pct+'%';
 }
 
-// auto-save every 2 min
-setInterval(() => {
-  if (localStorage.getItem(STORAGE_KEY)) saveAll();
-}, 120000);
-
 // init
-loadAll();
-buildTable();
+loadFromDB();
+subscribeRealtime();
 </script>
 </body>
 </html>

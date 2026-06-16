@@ -40,7 +40,6 @@
   .stat-box .label { font-size: 11px; color: #888; margin-top: 2px; }
   .stat-box.green .num { color: #5A8A5A; }
   .stat-box.orange .num { color: #C97A2A; }
-  .stat-box.gold .num { color: #C9A84C; }
 
   /* filter */
   .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -49,7 +48,7 @@
 
   /* table */
   .table-wrap { background: #fff; border-radius: 14px; border: 1px solid #E0DDD7; overflow: auto; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  table { width: 100%; border-collapse: collapse; min-width: 680px; }
   thead tr { background: #2A2A3A; color: #C9A84C; }
   thead th { padding: 13px 14px; text-align: left; font-size: 13px; font-weight: 600; white-space: nowrap; }
   thead th:first-child { width: 42px; text-align: center; }
@@ -73,7 +72,7 @@
   .dept-it  { background:#E8FCF0; color:#1A7A44; }
   .dept-all { background:#F0EFEA; color:#453224; }
 
-  .status-select { font-family:'Sarabun',sans-serif; font-size:12px; padding:5px 8px; border-radius:8px; border:1px solid #DDD; background:#fff; color:#2A2A3A; cursor:pointer; outline:none; width:130px; }
+  .status-select { font-family:'Sarabun',sans-serif; font-size:12px; padding:5px 8px; border-radius:8px; border:1px solid #DDD; background:#fff; color:#2A2A3A; cursor:pointer; outline:none; width:150px; }
   .status-select.done   { background:#EBF5EB; color:#2E7D32; border-color:#81C784; }
   .status-select.inprog { background:#FFF8E1; color:#F57F17; border-color:#FFD54F; }
   .status-select.todo   { background:#F5F5F5; color:#757575; border-color:#BDBDBD; }
@@ -84,51 +83,12 @@
   .checkbox-custom:checked::after { content:'✓'; position:absolute; color:#fff; font-size:13px; top:-1px; left:2px; font-weight:700; }
   tbody tr.row-done .topic-cell { text-decoration:line-through; color:#AAA; }
 
-  /* file cell */
-  .file-cell { min-width: 200px; }
-  .file-list  { display:flex; flex-direction:column; gap:5px; margin-bottom:6px; }
-  .file-chip  { display:flex; align-items:center; gap:6px; background:#F5F3EE; border:1px solid #E0DDD7; border-radius:8px; padding:4px 8px; font-size:12px; color:#453224; max-width:230px; }
-  .file-chip .icon { font-size:14px; flex-shrink:0; }
-  .file-chip .fname { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
-  .file-chip .fname:hover { color:#C9A84C; text-decoration:underline; }
-  .file-chip .del-btn { background:none; border:none; cursor:pointer; color:#AAA; font-size:15px; line-height:1; padding:0 2px; flex-shrink:0; }
-  .file-chip .del-btn:hover { color:#C62828; }
-  .attach-btn { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1.5px dashed #C9A84C; background:none; color:#C9A84C; font-family:'Sarabun',sans-serif; font-size:12px; cursor:pointer; transition:all .2s; }
-  .attach-btn:hover { background:#FFF8E8; }
-  .file-input-hidden { display:none; }
-  .drop-active { background:#FFF8E8 !important; }
-
-  /* size warning */
-  .size-warn { font-size:11px; color:#C97A2A; margin-top:3px; }
-
-  /* storage bar */
-  .storage-bar-wrap { margin-top:6px; }
-  .storage-info { font-size:11px; color:#888; margin-bottom:3px; }
-  .storage-bar  { height:6px; background:#ECEBE6; border-radius:6px; overflow:hidden; }
-  .storage-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#E8C870); border-radius:6px; transition:width .4s; }
-  .storage-fill.warn { background:linear-gradient(90deg,#E87020,#FFB347); }
-  .storage-fill.danger { background:linear-gradient(90deg,#C62828,#EF5350); }
-
   /* progress */
   .progress-wrap { margin-top:20px; background:#fff; border-radius:14px; border:1px solid #E0DDD7; padding:14px 18px; }
   .progress-label { font-size:13px; color:#666; margin-bottom:8px; display:flex; justify-content:space-between; }
   .progress-bar  { height:10px; background:#ECEBE6; border-radius:10px; overflow:hidden; }
   .progress-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#E8C870); border-radius:10px; transition:width .5s ease; }
   .footer-note { margin-top:14px; font-size:11px; color:#AAA; text-align:center; }
-
-  /* modal preview */
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; align-items:center; justify-content:center; }
-  .modal-overlay.show { display:flex; }
-  .modal-box { background:#fff; border-radius:16px; padding:20px; max-width:90vw; max-height:88vh; overflow:auto; box-shadow:0 8px 40px rgba(0,0,0,.3); position:relative; }
-  .modal-close { position:absolute; top:12px; right:14px; font-size:22px; cursor:pointer; color:#888; background:none; border:none; }
-  .modal-close:hover { color:#333; }
-  .modal-img { max-width:80vw; max-height:76vh; border-radius:8px; display:block; }
-  .modal-pdf { width:80vw; height:76vh; border:none; border-radius:8px; }
-  .modal-filename { font-size:13px; color:#666; margin-bottom:12px; word-break:break-all; }
-  .modal-nopreview { text-align:center; padding:40px 20px; color:#888; }
-  .modal-nopreview .big { font-size:48px; }
-  .modal-nopreview p { margin-top:10px; }
-  .modal-dl { display:inline-flex; align-items:center; gap:6px; margin-top:14px; padding:8px 18px; background:#2A2A3A; color:#C9A84C; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600; }
 </style>
 </head>
 <body>
@@ -146,10 +106,6 @@
 <div class="save-bar">
   <span>💾</span>
   <span class="save-status" id="saveStatus">ยังไม่ได้บันทึก — กด "บันทึก" เพื่อเก็บข้อมูลลงเครื่อง</span>
-  <div class="storage-bar-wrap" style="flex:1;min-width:140px;">
-    <div class="storage-info" id="storageInfo">localStorage ใช้: 0 KB</div>
-    <div class="storage-bar"><div class="storage-fill" id="storageFill" style="width:0%"></div></div>
-  </div>
   <button class="btn-save" onclick="saveAll()">💾 บันทึก</button>
   <button class="btn-clear" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
 </div>
@@ -160,7 +116,6 @@
   <div class="stat-box green"><div class="num" id="stat-done">0</div><div class="label">เสร็จแล้ว</div></div>
   <div class="stat-box orange"><div class="num" id="stat-inprog">0</div><div class="label">กำลังดำเนินการ</div></div>
   <div class="stat-box"><div class="num" id="stat-todo">21</div><div class="label">ยังไม่เริ่ม</div></div>
-  <div class="stat-box gold"><div class="num" id="stat-files">0</div><div class="label">ไฟล์แนบ</div></div>
 </div>
 
 <!-- Filter -->
@@ -170,7 +125,6 @@
   <button class="filter-btn" onclick="filterRows('inprog',this)">กำลังดำเนินการ</button>
   <button class="filter-btn" onclick="filterRows('done',this)">เสร็จแล้ว</button>
   <button class="filter-btn" onclick="filterRows('urgent',this)">เร่งด่วน</button>
-  <button class="filter-btn" onclick="filterRows('hasfile',this)">📎 มีไฟล์แนบ</button>
 </div>
 
 <!-- Table -->
@@ -182,7 +136,6 @@
       <th>หัวข้อ</th>
       <th>ฝ่ายที่รับผิดชอบ</th>
       <th>เนื้อหา / หมายเหตุ</th>
-      <th>📎 ไฟล์แนบเอกสาร</th>
       <th>สถานะการติดตาม</th>
     </tr>
   </thead>
@@ -195,19 +148,10 @@
   <div class="progress-label"><span>ความคืบหน้าโดยรวม</span><span id="progress-pct">0%</span></div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 </div>
-<div class="footer-note">กด 💾 บันทึก เพื่อเก็บสถานะและไฟล์แนบไว้ในเครื่อง · คลิกชื่อไฟล์เพื่อดูตัวอย่าง · ลากไฟล์วางในช่องได้เลย</div>
-
-<!-- Modal Preview -->
-<div class="modal-overlay" id="previewModal" onclick="closeModal(event)">
-  <div class="modal-box" id="modalBox">
-    <button class="modal-close" onclick="closePreview()">✕</button>
-    <div id="modalContent"></div>
-  </div>
-</div>
+<div class="footer-note">กด 💾 บันทึก เพื่อเก็บสถานะไว้ในเครื่อง · ติ๊กถูกหรือเลือกสถานะเพื่ออัปเดตความคืบหน้า</div>
 
 <script>
 const STORAGE_KEY = 'tfa_jiancha_v1';
-const MAX_LS = 2 * 1024 * 1024 * 1024; // 2 GB
 
 const rowDefs = [
   { topic:"ตารางรายงานผลยอดขายต่อสัปดาห์",                            dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"ใช้ภาพประกอบจาก Foodstory · ยอดขายรายสัปดาห์ แยกตามสาขา" },
@@ -241,8 +185,7 @@ const statusOpts = [
   { value:'urgent', label:'🔴 เร่งด่วน',        cls:'urgent' }
 ];
 
-// state[i] = { checked, status, files:[{name, type, b64}] }
-let state = rowDefs.map(() => ({ checked:false, status:'todo', files:[] }));
+let state = rowDefs.map(() => ({ checked:false, status:'todo' }));
 
 /* ── localStorage ── */
 function saveAll() {
@@ -251,13 +194,8 @@ function saveAll() {
     localStorage.setItem(STORAGE_KEY, data);
     const kb = Math.round(data.length * 2 / 1024);
     setStatus(`✅ บันทึกสำเร็จ · ${kb} KB · ${new Date().toLocaleTimeString('th-TH')}`, 'ok');
-    updateStorageBar(data.length * 2);
   } catch(e) {
-    if (e.name === 'QuotaExceededError') {
-      setStatus('❌ พื้นที่เต็ม — ลองลบบางไฟล์ก่อนบันทึก', 'err');
-    } else {
-      setStatus('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
-    }
+    setStatus('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
   }
 }
 
@@ -266,18 +204,16 @@ function loadAll() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    saved.forEach((s, i) => { if (state[i]) state[i] = s; });
-    updateStorageBar(raw.length * 2);
-    setStatus(`📂 โหลดข้อมูลแล้ว · ${Math.round(raw.length*2/1024)} KB`, 'ok');
+    saved.forEach((s, i) => { if (state[i]) state[i] = { checked: s.checked||false, status: s.status||'todo' }; });
+    setStatus(`📂 โหลดข้อมูลแล้ว · ${new Date().toLocaleTimeString('th-TH')}`, 'ok');
   } catch(e) { /* ignore */ }
 }
 
 function clearAll() {
-  if (!confirm('ล้างข้อมูลทั้งหมด (สถานะ + ไฟล์แนบ) ใช่ไหม?')) return;
+  if (!confirm('ล้างข้อมูลทั้งหมด (สถานะทั้งหมด) ใช่ไหม?')) return;
   localStorage.removeItem(STORAGE_KEY);
-  state = rowDefs.map(() => ({ checked:false, status:'todo', files:[] }));
+  state = rowDefs.map(() => ({ checked:false, status:'todo' }));
   buildTable();
-  updateStorageBar(0);
   setStatus('🗑️ ล้างข้อมูลแล้ว', '');
 }
 
@@ -286,110 +222,6 @@ function setStatus(msg, type) {
   el.textContent = msg;
   el.className = 'save-status ' + type;
 }
-
-function updateStorageBar(bytes) {
-  const MAX = 2 * 1024 * 1024 * 1024;
-  const pct = Math.min(100, (bytes / MAX) * 100);
-  let display = '';
-  if (bytes < 1024) display = bytes + ' B';
-  else if (bytes < 1024*1024) display = (bytes/1024).toFixed(1) + ' KB';
-  else if (bytes < 1024*1024*1024) display = (bytes/1024/1024).toFixed(2) + ' MB';
-  else display = (bytes/1024/1024/1024).toFixed(2) + ' GB';
-  document.getElementById('storageInfo').textContent = 'พื้นที่ใช้งาน: ' + display + ' / 2 GB';
-  const fill = document.getElementById('storageFill');
-  fill.style.width = pct + '%';
-  fill.className = 'storage-fill' + (pct > 85 ? ' danger' : pct > 60 ? ' warn' : '');
-}
-
-/* ── file helpers ── */
-function fileIcon(name) {
-  const ext = (name.split('.').pop()||'').toLowerCase();
-  if (ext==='pdf')  return '📄';
-  if (['doc','docx'].includes(ext)) return '📝';
-  if (['xls','xlsx'].includes(ext)) return '📊';
-  if (['ppt','pptx'].includes(ext)) return '📑';
-  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
-  if (['zip','rar','7z'].includes(ext)) return '🗜️';
-  if (['mp4','mov','avi'].includes(ext)) return '🎬';
-  return '📎';
-}
-
-function toB64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result); // data:mime;base64,xxx
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-
-async function handleFiles(i, fileList) {
-  const MAX_FILE = 1.5 * 1024 * 1024; // 1.5 MB per file warn
-  for (const file of Array.from(fileList)) {
-    if (file.size > 2 * 1024 * 1024) {
-      alert(`ไฟล์ "${file.name}" ใหญ่เกิน 2 MB อาจทำให้พื้นที่เต็ม`);
-    }
-    try {
-      const b64 = await toB64(file);
-      state[i].files.push({ name: file.name, type: file.type, b64 });
-      renderFileChips(i);
-      setStatus('📎 แนบไฟล์แล้ว — อย่าลืมกด 💾 บันทึก', '');
-    } catch(e) { alert('อ่านไฟล์ไม่ได้: ' + e.message); }
-  }
-}
-
-function removeFile(i, fi) {
-  state[i].files.splice(fi, 1);
-  renderFileChips(i);
-  setStatus('🗑️ ลบไฟล์แล้ว — อย่าลืมกด 💾 บันทึก', '');
-}
-
-function renderFileChips(i) {
-  const cell = document.getElementById('fc-' + i);
-  const list = cell.querySelector('.file-list');
-  list.innerHTML = '';
-  state[i].files.forEach((f, fi) => {
-    const chip = document.createElement('div');
-    chip.className = 'file-chip';
-    chip.innerHTML = `
-      <span class="icon">${fileIcon(f.name)}</span>
-      <span class="fname" title="${f.name}" onclick="previewFile(${i},${fi})">${f.name}</span>
-      <button class="del-btn" title="ลบ" onclick="removeFile(${i},${fi})">×</button>
-    `;
-    list.appendChild(chip);
-  });
-  const tr = document.getElementById('row-' + i);
-  if (state[i].files.length > 0) tr.dataset.hasfile = '1';
-  else delete tr.dataset.hasfile;
-  updateStats();
-  applyCurrentFilter();
-}
-
-/* ── preview modal ── */
-function previewFile(i, fi) {
-  const f = state[i].files[fi];
-  const modal = document.getElementById('previewModal');
-  const box   = document.getElementById('modalContent');
-  const ext   = (f.name.split('.').pop()||'').toLowerCase();
-  const isImg = ['jpg','jpeg','png','gif','webp'].includes(ext);
-  const isPdf = ext === 'pdf';
-
-  let html = `<div class="modal-filename">📎 ${f.name}</div>`;
-  if (isImg) {
-    html += `<img class="modal-img" src="${f.b64}" alt="${f.name}">`;
-  } else if (isPdf) {
-    html += `<iframe class="modal-pdf" src="${f.b64}"></iframe>`;
-  } else {
-    html += `<div class="modal-nopreview"><div class="big">${fileIcon(f.name)}</div><p>ไม่สามารถแสดงตัวอย่างได้</p></div>`;
-  }
-  // download link
-  html += `<br><a class="modal-dl" href="${f.b64}" download="${f.name}">⬇️ ดาวน์โหลดไฟล์</a>`;
-  box.innerHTML = html;
-  modal.classList.add('show');
-}
-
-function closePreview() { document.getElementById('previewModal').classList.remove('show'); }
-function closeModal(e)  { if (e.target === document.getElementById('previewModal')) closePreview(); }
 
 /* ── table ── */
 function buildTable() {
@@ -401,7 +233,6 @@ function buildTable() {
     tr.id = 'row-' + i;
     tr.dataset.status = s.status;
     if (s.checked) tr.classList.add('row-done');
-    if (s.files && s.files.length > 0) tr.dataset.hasfile = '1';
 
     const opts = statusOpts.map(o =>
       `<option value="${o.value}" ${s.status===o.value?'selected':''}>${o.label}</option>`
@@ -413,27 +244,12 @@ function buildTable() {
       <td class="topic-cell">${r.topic}</td>
       <td><span class="dept-badge ${deptClass[r.dept]}">${r.deptLabel}</span></td>
       <td class="note-cell">${r.note}</td>
-      <td class="file-cell" id="fc-${i}">
-        <div class="file-list"></div>
-        <button class="attach-btn" onclick="document.getElementById('fi-${i}').click()">📎 แนบไฟล์</button>
-        <input type="file" id="fi-${i}" class="file-input-hidden" multiple
-          onchange="handleFiles(${i},this.files);this.value=''">
-      </td>
       <td>
         <select class="status-select ${statusOpts.find(o=>o.value===s.status).cls}"
           onchange="changeStatus(${i},this)">${opts}</select>
       </td>
     `;
-
-    // drag & drop
-    const fc = tr.querySelector('.file-cell');
-    fc.addEventListener('dragover',  e => { e.preventDefault(); fc.classList.add('drop-active'); });
-    fc.addEventListener('dragleave', () => fc.classList.remove('drop-active'));
-    fc.addEventListener('drop',      e => { e.preventDefault(); fc.classList.remove('drop-active'); handleFiles(i, e.dataTransfer.files); });
-
     tbody.appendChild(tr);
-    // render saved chips
-    if (s.files && s.files.length) renderFileChips(i);
   });
   updateStats();
   applyCurrentFilter();
@@ -477,8 +293,7 @@ function filterRows(f, btn) {
 }
 function applyCurrentFilter() {
   document.querySelectorAll('#tableBody tr').forEach(tr => {
-    if (currentFilter==='all')     tr.classList.remove('hidden');
-    else if (currentFilter==='hasfile') tr.classList.toggle('hidden', !tr.dataset.hasfile);
+    if (currentFilter==='all') tr.classList.remove('hidden');
     else tr.classList.toggle('hidden', tr.dataset.status!==currentFilter);
   });
 }
@@ -488,12 +303,10 @@ function updateStats() {
   const inprog = state.filter(s=>s.status==='inprog').length;
   const urgent = state.filter(s=>s.status==='urgent').length;
   const todo   = state.filter(s=>s.status==='todo').length;
-  const files  = state.reduce((a,s)=>a+(s.files?s.files.length:0), 0);
   document.getElementById('stat-total').textContent  = rowDefs.length;
   document.getElementById('stat-done').textContent   = done;
-  document.getElementById('stat-inprog').textContent = inprog+urgent;
+  document.getElementById('stat-inprog').textContent = inprog + urgent;
   document.getElementById('stat-todo').textContent   = todo;
-  document.getElementById('stat-files').textContent  = files;
   const pct = Math.round(done/rowDefs.length*100);
   document.getElementById('progress-pct').textContent  = pct+'%';
   document.getElementById('progress-fill').style.width = pct+'%';

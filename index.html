@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>การจัดเตรียมเอกสาร – Thailand Franchise Award</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: #F5F3EE; color: #2A2A3A; padding: 28px 20px; font-size: 14px; }
+
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .logo-mark { width: 48px; height: 48px; background: #2A2A3A; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #C9A84C; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  h1 { font-size: 20px; font-weight: 700; color: #2A2A3A; line-height: 1.3; }
+  .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+  .gold-line { height: 3px; background: linear-gradient(90deg,#C9A84C,#ECEBE6); margin: 14px 0 20px; border-radius: 2px; }
+
+  /* save bar */
+  .save-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid #E0DDD7; border-radius: 12px;
+    padding: 10px 18px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .save-bar .save-status { font-size: 12px; color: #888; flex: 1; }
+  .save-bar .save-status.ok  { color: #2E7D32; }
+  .save-bar .save-status.err { color: #C62828; }
+  .btn-save, .btn-clear {
+    font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 7px 18px; border-radius: 8px; cursor: pointer; border: none; transition: all .2s;
+  }
+  .btn-save  { background: #2A2A3A; color: #C9A84C; }
+  .btn-save:hover  { background: #3D3D50; }
+  .btn-clear { background: #F0EDE8; color: #888; }
+  .btn-clear:hover { background: #E0DDD7; color: #555; }
+
+  /* stats */
+  .stats { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .stat-box { background: #fff; border: 1px solid #E0DDD7; border-radius: 10px; padding: 10px 18px; text-align: center; min-width: 100px; }
+  .stat-box .num { font-size: 22px; font-weight: 700; color: #2A2A3A; }
+  .stat-box .label { font-size: 11px; color: #888; margin-top: 2px; }
+  .stat-box.green .num { color: #5A8A5A; }
+  .stat-box.orange .num { color: #C97A2A; }
+  .stat-box.gold .num { color: #C9A84C; }
+
+  /* filter */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 13px; border-radius: 20px; border: 1px solid #D4CFC7; background: #fff; color: #2A2A3A; font-family: 'Sarabun', sans-serif; font-size: 13px; cursor: pointer; transition: all .2s; }
+  .filter-btn:hover, .filter-btn.active { background: #2A2A3A; color: #C9A84C; border-color: #2A2A3A; }
+
+  /* table */
+  .table-wrap { background: #fff; border-radius: 14px; border: 1px solid #E0DDD7; overflow: auto; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  thead tr { background: #2A2A3A; color: #C9A84C; }
+  thead th { padding: 13px 14px; text-align: left; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  thead th:first-child { width: 42px; text-align: center; }
+  thead th:nth-child(2) { width: 34px; text-align: center; color: #aaa; }
+  tbody tr { border-bottom: 1px solid #F0EDE8; transition: background .15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAF8F4; }
+  tbody tr.hidden { display: none; }
+  td { padding: 11px 14px; vertical-align: middle; }
+  td:first-child { text-align: center; }
+  .num-cell { text-align: center; color: #C9A84C; font-weight: 700; font-size: 13px; }
+  .topic-cell { font-weight: 600; color: #2A2A3A; font-size: 14px; line-height: 1.4; }
+  .note-cell  { color: #666; font-size: 13px; line-height: 1.5; }
+
+  .dept-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .dept-ops { background:#EBF3EB; color:#3A6B3A; }
+  .dept-mkt { background:#FFF3E0; color:#B35C00; }
+  .dept-biz { background:#EDE8F7; color:#4A2A8A; }
+  .dept-hr  { background:#FCE8F3; color:#8A1A5A; }
+  .dept-fin { background:#E8F3FC; color:#1A5A8A; }
+  .dept-it  { background:#E8FCF0; color:#1A7A44; }
+  .dept-all { background:#F0EFEA; color:#453224; }
+
+  .status-select { font-family:'Sarabun',sans-serif; font-size:12px; padding:5px 8px; border-radius:8px; border:1px solid #DDD; background:#fff; color:#2A2A3A; cursor:pointer; outline:none; width:130px; }
+  .status-select.done   { background:#EBF5EB; color:#2E7D32; border-color:#81C784; }
+  .status-select.inprog { background:#FFF8E1; color:#F57F17; border-color:#FFD54F; }
+  .status-select.todo   { background:#F5F5F5; color:#757575; border-color:#BDBDBD; }
+  .status-select.urgent { background:#FDECEA; color:#C62828; border-color:#EF9A9A; }
+
+  .checkbox-custom { width:20px; height:20px; border-radius:6px; border:2px solid #C9A84C; cursor:pointer; appearance:none; -webkit-appearance:none; transition:all .2s; position:relative; }
+  .checkbox-custom:checked { background:#C9A84C; border-color:#C9A84C; }
+  .checkbox-custom:checked::after { content:'✓'; position:absolute; color:#fff; font-size:13px; top:-1px; left:2px; font-weight:700; }
+  tbody tr.row-done .topic-cell { text-decoration:line-through; color:#AAA; }
+
+  /* file cell */
+  .file-cell { min-width: 200px; }
+  .file-list  { display:flex; flex-direction:column; gap:5px; margin-bottom:6px; }
+  .file-chip  { display:flex; align-items:center; gap:6px; background:#F5F3EE; border:1px solid #E0DDD7; border-radius:8px; padding:4px 8px; font-size:12px; color:#453224; max-width:230px; }
+  .file-chip .icon { font-size:14px; flex-shrink:0; }
+  .file-chip .fname { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+  .file-chip .fname:hover { color:#C9A84C; text-decoration:underline; }
+  .file-chip .del-btn { background:none; border:none; cursor:pointer; color:#AAA; font-size:15px; line-height:1; padding:0 2px; flex-shrink:0; }
+  .file-chip .del-btn:hover { color:#C62828; }
+  .attach-btn { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:8px; border:1.5px dashed #C9A84C; background:none; color:#C9A84C; font-family:'Sarabun',sans-serif; font-size:12px; cursor:pointer; transition:all .2s; }
+  .attach-btn:hover { background:#FFF8E8; }
+  .file-input-hidden { display:none; }
+  .drop-active { background:#FFF8E8 !important; }
+
+  /* size warning */
+  .size-warn { font-size:11px; color:#C97A2A; margin-top:3px; }
+
+  /* storage bar */
+  .storage-bar-wrap { margin-top:6px; }
+  .storage-info { font-size:11px; color:#888; margin-bottom:3px; }
+  .storage-bar  { height:6px; background:#ECEBE6; border-radius:6px; overflow:hidden; }
+  .storage-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#E8C870); border-radius:6px; transition:width .4s; }
+  .storage-fill.warn { background:linear-gradient(90deg,#E87020,#FFB347); }
+  .storage-fill.danger { background:linear-gradient(90deg,#C62828,#EF5350); }
+
+  /* progress */
+  .progress-wrap { margin-top:20px; background:#fff; border-radius:14px; border:1px solid #E0DDD7; padding:14px 18px; }
+  .progress-label { font-size:13px; color:#666; margin-bottom:8px; display:flex; justify-content:space-between; }
+  .progress-bar  { height:10px; background:#ECEBE6; border-radius:10px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#C9A84C,#E8C870); border-radius:10px; transition:width .5s ease; }
+  .footer-note { margin-top:14px; font-size:11px; color:#AAA; text-align:center; }
+
+  /* modal preview */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; align-items:center; justify-content:center; }
+  .modal-overlay.show { display:flex; }
+  .modal-box { background:#fff; border-radius:16px; padding:20px; max-width:90vw; max-height:88vh; overflow:auto; box-shadow:0 8px 40px rgba(0,0,0,.3); position:relative; }
+  .modal-close { position:absolute; top:12px; right:14px; font-size:22px; cursor:pointer; color:#888; background:none; border:none; }
+  .modal-close:hover { color:#333; }
+  .modal-img { max-width:80vw; max-height:76vh; border-radius:8px; display:block; }
+  .modal-pdf { width:80vw; height:76vh; border:none; border-radius:8px; }
+  .modal-filename { font-size:13px; color:#666; margin-bottom:12px; word-break:break-all; }
+  .modal-nopreview { text-align:center; padding:40px 20px; color:#888; }
+  .modal-nopreview .big { font-size:48px; }
+  .modal-nopreview p { margin-top:10px; }
+  .modal-dl { display:inline-flex; align-items:center; gap:6px; margin-top:14px; padding:8px 18px; background:#2A2A3A; color:#C9A84C; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-mark">JC</div>
+  <div>
+    <h1>การจัดเตรียมเอกสาร – Thailand Franchise Award</h1>
+    <div class="subtitle">JIAN CHA (เจี้ยนชา) · Franchise Development · อัปเดต มิ.ย. 2026</div>
+  </div>
+</div>
+<div class="gold-line"></div>
+
+<!-- Save Bar -->
+<div class="save-bar">
+  <span>💾</span>
+  <span class="save-status" id="saveStatus">ยังไม่ได้บันทึก — กด "บันทึก" เพื่อเก็บข้อมูลลงเครื่อง</span>
+  <div class="storage-bar-wrap" style="flex:1;min-width:140px;">
+    <div class="storage-info" id="storageInfo">localStorage ใช้: 0 KB</div>
+    <div class="storage-bar"><div class="storage-fill" id="storageFill" style="width:0%"></div></div>
+  </div>
+  <button class="btn-save" onclick="saveAll()">💾 บันทึก</button>
+  <button class="btn-clear" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat-box"><div class="num" id="stat-total">21</div><div class="label">รายการทั้งหมด</div></div>
+  <div class="stat-box green"><div class="num" id="stat-done">0</div><div class="label">เสร็จแล้ว</div></div>
+  <div class="stat-box orange"><div class="num" id="stat-inprog">0</div><div class="label">กำลังดำเนินการ</div></div>
+  <div class="stat-box"><div class="num" id="stat-todo">21</div><div class="label">ยังไม่เริ่ม</div></div>
+  <div class="stat-box gold"><div class="num" id="stat-files">0</div><div class="label">ไฟล์แนบ</div></div>
+</div>
+
+<!-- Filter -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterRows('all',this)">ทั้งหมด</button>
+  <button class="filter-btn" onclick="filterRows('todo',this)">ยังไม่เริ่ม</button>
+  <button class="filter-btn" onclick="filterRows('inprog',this)">กำลังดำเนินการ</button>
+  <button class="filter-btn" onclick="filterRows('done',this)">เสร็จแล้ว</button>
+  <button class="filter-btn" onclick="filterRows('urgent',this)">เร่งด่วน</button>
+  <button class="filter-btn" onclick="filterRows('hasfile',this)">📎 มีไฟล์แนบ</button>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+<table id="mainTable">
+  <thead>
+    <tr>
+      <th>✓</th><th>#</th>
+      <th>หัวข้อ</th>
+      <th>ฝ่ายที่รับผิดชอบ</th>
+      <th>เนื้อหา / หมายเหตุ</th>
+      <th>📎 ไฟล์แนบเอกสาร</th>
+      <th>สถานะการติดตาม</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-label"><span>ความคืบหน้าโดยรวม</span><span id="progress-pct">0%</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="footer-note">กด 💾 บันทึก เพื่อเก็บสถานะและไฟล์แนบไว้ในเครื่อง · คลิกชื่อไฟล์เพื่อดูตัวอย่าง · ลากไฟล์วางในช่องได้เลย</div>
+
+<!-- Modal Preview -->
+<div class="modal-overlay" id="previewModal" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closePreview()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'tfa_jiancha_v1';
+const MAX_LS = 2 * 1024 * 1024 * 1024; // 2 GB
+
+const rowDefs = [
+  { topic:"ตารางรายงานผลยอดขายต่อสัปดาห์",                            dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"ใช้ภาพประกอบจาก Foodstory · ยอดขายรายสัปดาห์ แยกตามสาขา" },
+  { topic:"สารบัญคู่มือปฏิบัติงาน (Operation Manual)",                  dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"เตรียมเอกสารแล้ว · จัดโครงสร้างสารบัญและแบ่งบท" },
+  { topic:"การจัดการฐานข้อมูลลูกค้าแฟรนไชส์ซีอย่างเป็นระบบ",           dept:"biz", deptLabel:"ฝ่ายแฟรนไชส์",     note:"ระบบ CRM · การเก็บและจัดการข้อมูลลูกค้า Franchise" },
+  { topic:"โครงสร้างองค์กรสาขา",                                         dept:"hr",  deptLabel:"ฝ่าย HR",           note:"แผนผังโครงสร้าง: ผู้จัดการร้าน → Supervisor → พนักงาน" },
+  { topic:"ภาพการใช้ระบบ POS",                                           dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"หาภาพประกอบการใช้งาน POS · ขั้นตอนรับออเดอร์ จ่ายเงิน" },
+  { topic:"การวิเคราะห์ระบบสารสนเทศ",                                    dept:"it",  deptLabel:"ฝ่าย IT / Data",   note:"วิเคราะห์ระบบ IT ที่ใช้ · ความเชื่อมโยงระหว่างระบบ" },
+  { topic:"จำนวนแฟรนไชส์ซีที่เพิ่มขึ้นแต่ละปี",                        dept:"biz", deptLabel:"ฝ่ายแฟรนไชส์",     note:"ข้อมูลการเติบโต · สไลด์นำเสนอ Growth YoY" },
+  { topic:"ตารางข้อมูลแฟรนไชส์ย้อนหลัง 1–3 ปี",                         dept:"biz", deptLabel:"ฝ่ายแฟรนไชส์",     note:"จำนวนสาขา ยอดขาย ย้อนหลัง 3 ปี" },
+  { topic:"เอกสารงบการเงินย้อนหลัง 1–3 ปี",                              dept:"fin", deptLabel:"ฝ่ายการเงิน",      note:"งบกำไรขาดทุน งบดุล Cash Flow ย้อนหลัง 3 ปี" },
+  { topic:"แนวทางปฏิบัติงานด้านสิ่งแวดล้อม",                             dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"นโยบายและแผนด้านสิ่งแวดล้อม · การจัดการขยะ / ลดพลาสติก" },
+  { topic:"ระบบสมัครสมาชิก Membership",                                   dept:"mkt", deptLabel:"ฝ่ายการตลาด",     note:"ภาพประกอบ Membership Card / App · สิทธิประโยชน์สมาชิก" },
+  { topic:"ระบบจัดการข้อร้องเรียน & แบบประเมินความพึงพอใจ",               dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"แบบฟอร์มร้องเรียน · แบบประเมินพนักงาน / ลูกค้า" },
+  { topic:"ระบบการจัดฝึกอบรมพนักงาน",                                    dept:"hr",  deptLabel:"ฝ่าย HR",           note:"เอกสารแจ้งข้อมูล Training · Schedule / Checklist" },
+  { topic:"ระบบการจัดหาบุคลากรสำหรับแฟรนไชส์",                          dept:"hr",  deptLabel:"ฝ่าย HR",           note:"กระบวนการสัมภาษณ์ การคัดกรอง · JD แต่ละตำแหน่ง" },
+  { topic:"การใช้เทคโนโลยีในการเก็บข้อมูล CRM",                          dept:"it",  deptLabel:"ฝ่าย IT / Data",   note:"แอปที่ใช้งาน · การเชื่อมต่อ CRM กับช่องทางต่าง ๆ" },
+  { topic:"การนำข้อมูลลูกค้า Franchise ไปปรับแผนการตลาด",                dept:"mkt", deptLabel:"ฝ่ายการตลาด",     note:"กรณีศึกษา Data วิเคราะห์พฤติกรรมลูกค้า" },
+  { topic:"แผนบริหารความเสี่ยง (Risk Management Plan)",                   dept:"all", deptLabel:"ทุกฝ่าย",          note:"ระบุความเสี่ยง ระดับผลกระทบ แผนรองรับ / Mitigation" },
+  { topic:"ระบบตรวจประเมินสาขาแฟรนไชส์",                                 dept:"ops", deptLabel:"ฝ่ายปฏิบัติการ",   note:"เกณฑ์การสุ่มตรวจ · Audit Checklist · ความถี่การตรวจ" },
+  { topic:"Dashboard ระบบเก็บข้อมูลหลังบ้าน",                            dept:"it",  deptLabel:"ฝ่าย IT / Data",   note:"Screenshot Dashboard · KPI สำคัญที่แสดงในระบบ" },
+  { topic:"รายงานผล KPI แฟรนไชส์ซี & การเติบโตรายปี",                    dept:"biz", deptLabel:"ฝ่ายแฟรนไชส์",     note:"สไลด์ KPI แต่ละสาขา · Growth แต่ละปี แบบ Infographic" },
+  { topic:"ผู้รับผิดชอบและกำหนดส่งเอกสาร",                               dept:"all", deptLabel:"ทุกฝ่าย",          note:"ระบุชื่อผู้รับผิดชอบ กำหนดส่ง และผู้อนุมัติแต่ละหัวข้อ" }
+];
+
+const deptClass = { ops:'dept-ops', mkt:'dept-mkt', biz:'dept-biz', hr:'dept-hr', fin:'dept-fin', it:'dept-it', all:'dept-all' };
+const statusOpts = [
+  { value:'todo',   label:'📋 ยังไม่เริ่ม',    cls:'todo'   },
+  { value:'inprog', label:'🔄 กำลังดำเนินการ', cls:'inprog' },
+  { value:'done',   label:'✅ เสร็จแล้ว',       cls:'done'   },
+  { value:'urgent', label:'🔴 เร่งด่วน',        cls:'urgent' }
+];
+
+// state[i] = { checked, status, files:[{name, type, b64}] }
+let state = rowDefs.map(() => ({ checked:false, status:'todo', files:[] }));
+
+/* ── localStorage ── */
+function saveAll() {
+  try {
+    const data = JSON.stringify(state);
+    localStorage.setItem(STORAGE_KEY, data);
+    const kb = Math.round(data.length * 2 / 1024);
+    setStatus(`✅ บันทึกสำเร็จ · ${kb} KB · ${new Date().toLocaleTimeString('th-TH')}`, 'ok');
+    updateStorageBar(data.length * 2);
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') {
+      setStatus('❌ พื้นที่เต็ม — ลองลบบางไฟล์ก่อนบันทึก', 'err');
+    } else {
+      setStatus('❌ บันทึกไม่สำเร็จ: ' + e.message, 'err');
+    }
+  }
+}
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    saved.forEach((s, i) => { if (state[i]) state[i] = s; });
+    updateStorageBar(raw.length * 2);
+    setStatus(`📂 โหลดข้อมูลแล้ว · ${Math.round(raw.length*2/1024)} KB`, 'ok');
+  } catch(e) { /* ignore */ }
+}
+
+function clearAll() {
+  if (!confirm('ล้างข้อมูลทั้งหมด (สถานะ + ไฟล์แนบ) ใช่ไหม?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = rowDefs.map(() => ({ checked:false, status:'todo', files:[] }));
+  buildTable();
+  updateStorageBar(0);
+  setStatus('🗑️ ล้างข้อมูลแล้ว', '');
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('saveStatus');
+  el.textContent = msg;
+  el.className = 'save-status ' + type;
+}
+
+function updateStorageBar(bytes) {
+  const MAX = 2 * 1024 * 1024 * 1024;
+  const pct = Math.min(100, (bytes / MAX) * 100);
+  let display = '';
+  if (bytes < 1024) display = bytes + ' B';
+  else if (bytes < 1024*1024) display = (bytes/1024).toFixed(1) + ' KB';
+  else if (bytes < 1024*1024*1024) display = (bytes/1024/1024).toFixed(2) + ' MB';
+  else display = (bytes/1024/1024/1024).toFixed(2) + ' GB';
+  document.getElementById('storageInfo').textContent = 'พื้นที่ใช้งาน: ' + display + ' / 2 GB';
+  const fill = document.getElementById('storageFill');
+  fill.style.width = pct + '%';
+  fill.className = 'storage-fill' + (pct > 85 ? ' danger' : pct > 60 ? ' warn' : '');
+}
+
+/* ── file helpers ── */
+function fileIcon(name) {
+  const ext = (name.split('.').pop()||'').toLowerCase();
+  if (ext==='pdf')  return '📄';
+  if (['doc','docx'].includes(ext)) return '📝';
+  if (['xls','xlsx'].includes(ext)) return '📊';
+  if (['ppt','pptx'].includes(ext)) return '📑';
+  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
+  if (['zip','rar','7z'].includes(ext)) return '🗜️';
+  if (['mp4','mov','avi'].includes(ext)) return '🎬';
+  return '📎';
+}
+
+function toB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result); // data:mime;base64,xxx
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function handleFiles(i, fileList) {
+  const MAX_FILE = 1.5 * 1024 * 1024; // 1.5 MB per file warn
+  for (const file of Array.from(fileList)) {
+    if (file.size > 2 * 1024 * 1024) {
+      alert(`ไฟล์ "${file.name}" ใหญ่เกิน 2 MB อาจทำให้พื้นที่เต็ม`);
+    }
+    try {
+      const b64 = await toB64(file);
+      state[i].files.push({ name: file.name, type: file.type, b64 });
+      renderFileChips(i);
+      setStatus('📎 แนบไฟล์แล้ว — อย่าลืมกด 💾 บันทึก', '');
+    } catch(e) { alert('อ่านไฟล์ไม่ได้: ' + e.message); }
+  }
+}
+
+function removeFile(i, fi) {
+  state[i].files.splice(fi, 1);
+  renderFileChips(i);
+  setStatus('🗑️ ลบไฟล์แล้ว — อย่าลืมกด 💾 บันทึก', '');
+}
+
+function renderFileChips(i) {
+  const cell = document.getElementById('fc-' + i);
+  const list = cell.querySelector('.file-list');
+  list.innerHTML = '';
+  state[i].files.forEach((f, fi) => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.innerHTML = `
+      <span class="icon">${fileIcon(f.name)}</span>
+      <span class="fname" title="${f.name}" onclick="previewFile(${i},${fi})">${f.name}</span>
+      <button class="del-btn" title="ลบ" onclick="removeFile(${i},${fi})">×</button>
+    `;
+    list.appendChild(chip);
+  });
+  const tr = document.getElementById('row-' + i);
+  if (state[i].files.length > 0) tr.dataset.hasfile = '1';
+  else delete tr.dataset.hasfile;
+  updateStats();
+  applyCurrentFilter();
+}
+
+/* ── preview modal ── */
+function previewFile(i, fi) {
+  const f = state[i].files[fi];
+  const modal = document.getElementById('previewModal');
+  const box   = document.getElementById('modalContent');
+  const ext   = (f.name.split('.').pop()||'').toLowerCase();
+  const isImg = ['jpg','jpeg','png','gif','webp'].includes(ext);
+  const isPdf = ext === 'pdf';
+
+  let html = `<div class="modal-filename">📎 ${f.name}</div>`;
+  if (isImg) {
+    html += `<img class="modal-img" src="${f.b64}" alt="${f.name}">`;
+  } else if (isPdf) {
+    html += `<iframe class="modal-pdf" src="${f.b64}"></iframe>`;
+  } else {
+    html += `<div class="modal-nopreview"><div class="big">${fileIcon(f.name)}</div><p>ไม่สามารถแสดงตัวอย่างได้</p></div>`;
+  }
+  // download link
+  html += `<br><a class="modal-dl" href="${f.b64}" download="${f.name}">⬇️ ดาวน์โหลดไฟล์</a>`;
+  box.innerHTML = html;
+  modal.classList.add('show');
+}
+
+function closePreview() { document.getElementById('previewModal').classList.remove('show'); }
+function closeModal(e)  { if (e.target === document.getElementById('previewModal')) closePreview(); }
+
+/* ── table ── */
+function buildTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  rowDefs.forEach((r, i) => {
+    const s = state[i];
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + i;
+    tr.dataset.status = s.status;
+    if (s.checked) tr.classList.add('row-done');
+    if (s.files && s.files.length > 0) tr.dataset.hasfile = '1';
+
+    const opts = statusOpts.map(o =>
+      `<option value="${o.value}" ${s.status===o.value?'selected':''}>${o.label}</option>`
+    ).join('');
+
+    tr.innerHTML = `
+      <td><input type="checkbox" class="checkbox-custom" ${s.checked?'checked':''} onchange="toggleCheck(${i},this)"></td>
+      <td class="num-cell">${i+1}</td>
+      <td class="topic-cell">${r.topic}</td>
+      <td><span class="dept-badge ${deptClass[r.dept]}">${r.deptLabel}</span></td>
+      <td class="note-cell">${r.note}</td>
+      <td class="file-cell" id="fc-${i}">
+        <div class="file-list"></div>
+        <button class="attach-btn" onclick="document.getElementById('fi-${i}').click()">📎 แนบไฟล์</button>
+        <input type="file" id="fi-${i}" class="file-input-hidden" multiple
+          onchange="handleFiles(${i},this.files);this.value=''">
+      </td>
+      <td>
+        <select class="status-select ${statusOpts.find(o=>o.value===s.status).cls}"
+          onchange="changeStatus(${i},this)">${opts}</select>
+      </td>
+    `;
+
+    // drag & drop
+    const fc = tr.querySelector('.file-cell');
+    fc.addEventListener('dragover',  e => { e.preventDefault(); fc.classList.add('drop-active'); });
+    fc.addEventListener('dragleave', () => fc.classList.remove('drop-active'));
+    fc.addEventListener('drop',      e => { e.preventDefault(); fc.classList.remove('drop-active'); handleFiles(i, e.dataTransfer.files); });
+
+    tbody.appendChild(tr);
+    // render saved chips
+    if (s.files && s.files.length) renderFileChips(i);
+  });
+  updateStats();
+  applyCurrentFilter();
+}
+
+function toggleCheck(i, el) {
+  state[i].checked = el.checked;
+  if (el.checked) {
+    state[i].status = 'done';
+    const tr = el.closest('tr');
+    tr.dataset.status = 'done';
+    const sel = tr.querySelector('.status-select');
+    sel.value = 'done'; styleSelect(sel, 'done');
+  }
+  el.closest('tr').classList.toggle('row-done', el.checked);
+  updateStats(); applyCurrentFilter();
+  setStatus('แก้ไขแล้ว — อย่าลืมกด 💾 บันทึก', '');
+}
+
+function changeStatus(i, el) {
+  state[i].status = el.value;
+  el.closest('tr').dataset.status = el.value;
+  styleSelect(el, el.value);
+  const cb = el.closest('tr').querySelector('.checkbox-custom');
+  if (el.value === 'done') { state[i].checked=true; cb.checked=true; el.closest('tr').classList.add('row-done'); }
+  else { state[i].checked=false; cb.checked=false; el.closest('tr').classList.remove('row-done'); }
+  updateStats(); applyCurrentFilter();
+  setStatus('แก้ไขแล้ว — อย่าลืมกด 💾 บันทึก', '');
+}
+
+function styleSelect(el, val) {
+  el.className = 'status-select ' + (statusOpts.find(o=>o.value===val)?.cls||'todo');
+}
+
+let currentFilter = 'all';
+function filterRows(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyCurrentFilter();
+}
+function applyCurrentFilter() {
+  document.querySelectorAll('#tableBody tr').forEach(tr => {
+    if (currentFilter==='all')     tr.classList.remove('hidden');
+    else if (currentFilter==='hasfile') tr.classList.toggle('hidden', !tr.dataset.hasfile);
+    else tr.classList.toggle('hidden', tr.dataset.status!==currentFilter);
+  });
+}
+
+function updateStats() {
+  const done   = state.filter(s=>s.status==='done').length;
+  const inprog = state.filter(s=>s.status==='inprog').length;
+  const urgent = state.filter(s=>s.status==='urgent').length;
+  const todo   = state.filter(s=>s.status==='todo').length;
+  const files  = state.reduce((a,s)=>a+(s.files?s.files.length:0), 0);
+  document.getElementById('stat-total').textContent  = rowDefs.length;
+  document.getElementById('stat-done').textContent   = done;
+  document.getElementById('stat-inprog').textContent = inprog+urgent;
+  document.getElementById('stat-todo').textContent   = todo;
+  document.getElementById('stat-files').textContent  = files;
+  const pct = Math.round(done/rowDefs.length*100);
+  document.getElementById('progress-pct').textContent  = pct+'%';
+  document.getElementById('progress-fill').style.width = pct+'%';
+}
+
+// auto-save every 2 min
+setInterval(() => {
+  if (localStorage.getItem(STORAGE_KEY)) saveAll();
+}, 120000);
+
+// init
+loadAll();
+buildTable();
+</script>
+</body>
+</html>

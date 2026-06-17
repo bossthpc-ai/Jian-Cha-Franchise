@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบประเมินผู้ลงทุนแฟรนไชส์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#065f46;--green-light:#d1fae5;--green-mid:#059669;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --red:#991b1b;--red-light:#fee2e2;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-900:#111827;
+}
+body{font-family:'Sarabun',sans-serif;background:#f8fafc;color:var(--gray-900);min-height:100vh}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:900px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;padding:12px 0}
+.logo-icon{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-title{font-weight:700;font-size:14px;line-height:1.2}
+.logo-sub{font-size:11px;color:var(--gray-400)}
+.nav-tabs{display:flex;background:var(--gray-100);border-radius:10px;padding:4px;gap:4px}
+.nav-tab{padding:6px 16px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;color:var(--gray-500);transition:all .15s;display:flex;align-items:center;gap:6px}
+.nav-tab.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.badge{background:var(--green);color:#fff;font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700}
+
+/* LAYOUT */
+.page{max-width:700px;margin:0 auto;padding:32px 20px}
+.page-wide{max-width:1040px;margin:0 auto;padding:32px 20px}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:24px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.step-num{width:24px;height:24px;background:var(--green);border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* FORM */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-full{grid-column:1/-1}
+label{display:block;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:5px}
+input[type=text],input[type=tel],textarea{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 13px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--gray-900);outline:none;transition:border-color .15s}
+input:focus,textarea:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+
+/* BRAND BUTTONS */
+.brand-btns{display:flex;gap:12px}
+.brand-btn{flex:1;padding:14px;border-radius:12px;border:2px solid var(--gray-200);background:#fff;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;color:var(--gray-500);transition:all .15s;text-align:center}
+.brand-btn.selected{border-color:var(--green);background:#ecfdf5;color:var(--green)}
+.brand-btn:hover:not(.selected){border-color:var(--gray-400)}
+
+/* SCORE ROWS */
+.score-item{background:var(--gray-50);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:background .15s;border:1.5px solid transparent}
+.score-item.scored{background:#ecfdf5;border-color:#a7f3d0}
+.score-row{display:flex;align-items:flex-start;gap:10px}
+.score-num{font-size:12px;font-weight:700;color:var(--gray-400);min-width:18px;padding-top:2px}
+.score-label{font-size:13px;font-weight:700;color:var(--gray-900);flex:1;line-height:1.4;margin-bottom:10px}
+.score-btns{display:flex;gap:6px;flex-wrap:wrap}
+.score-btn{width:38px;height:38px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:var(--gray-500);transition:all .15s;display:flex;align-items:center;justify-content:center;position:relative}
+.score-btn:hover{border-color:var(--green-mid);color:var(--green)}
+.score-btn.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px rgba(6,95,70,.3)}
+
+/* SCORE DESCRIPTION */
+.score-descs{margin-top:10px;display:none;flex-direction:column;gap:3px}
+.score-item.scored .score-descs{display:flex}
+.score-desc-row{display:flex;align-items:flex-start;gap:6px;font-size:11.5px;line-height:1.5;padding:4px 6px;border-radius:6px;color:var(--gray-500)}
+.score-desc-row.highlight{background:#fff;color:var(--green);font-weight:700;border:1px solid #a7f3d0}
+.score-desc-dot{width:18px;height:18px;border-radius:5px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.score-desc-dot.active{background:var(--green);color:#fff}
+.score-desc-dot.inactive{background:var(--gray-200);color:var(--gray-400)}
+
+/* SCORE PREVIEW */
+.score-preview{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#fff;border:1px solid var(--gray-200);border-radius:14px;margin-bottom:20px}
+.score-big{font-size:38px;font-weight:800;color:var(--gray-900)}
+.score-denom{font-size:18px;color:var(--gray-400);font-weight:400}
+.score-bar-wrap{margin-top:12px;height:6px;background:var(--gray-100);border-radius:100px;overflow:hidden}
+.score-bar{height:100%;border-radius:100px;transition:width .5s ease,background .3s}
+.pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1px solid transparent}
+.pill-pass{background:var(--green-light);color:var(--green);border-color:#a7f3d0}
+.pill-wait{background:var(--amber-light);color:var(--amber);border-color:#fcd34d}
+.pill-fail{background:var(--red-light);color:var(--red);border-color:#fca5a5}
+.pill-gray{background:var(--gray-100);color:var(--gray-400);border-color:var(--gray-200)}
+
+/* NOTES SECTION */
+.notes-section{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:24px;margin-bottom:16px}
+.notes-title{font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.notes-sub{font-size:12px;color:var(--gray-400);margin-bottom:14px;margin-left:32px}
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.notes-full{grid-column:1/-1}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-opt{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--gray-200);cursor:pointer;font-size:13px;font-weight:600;color:var(--gray-600);transition:all .15s;background:#fff}
+.radio-opt input{display:none}
+.radio-opt.selected-pos{border-color:#16a34a;background:#ecfdf5;color:#15803d}
+.radio-opt.selected-neg{border-color:#dc2626;background:#fef2f2;color:#dc2626}
+.radio-opt.selected-neu{border-color:#d97706;background:#fffbeb;color:#b45309}
+
+/* SUBMIT BTN */
+.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
+.btn-submit:hover{opacity:.92}
+.btn-submit:active{transform:scale(.99)}
+
+/* SUCCESS */
+.success-wrap{max-width:480px;margin:0 auto;padding:64px 20px;text-align:center}
+.success-icon{width:80px;height:80px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.success-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.success-sub{color:var(--gray-500);font-size:14px;margin-bottom:6px}
+.success-score{font-size:38px;font-weight:800;line-height:1;margin:12px 0 4px}
+.success-actions{display:flex;gap:12px;margin-top:28px}
+.btn-outline{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--gray-200);background:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--gray-700);cursor:pointer;transition:background .15s}
+.btn-outline:hover{background:var(--gray-50)}
+.btn-green{flex:1;padding:12px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-green:hover{opacity:.9}
+
+/* CRM */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid var(--gray-200);border-radius:12px;padding:16px 18px;cursor:pointer;transition:border-color .15s}
+.stat-card:hover{border-color:var(--gray-400)}
+.stat-card.active-filter{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+.stat-label{font-size:12px;color:var(--gray-500);margin-bottom:4px}
+.stat-val{font-size:32px;font-weight:800}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:#d97706}
+.stat-val.red{color:var(--red)}
+
+.filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-search{flex:1;min-width:160px;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 13px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none}
+.filter-search:focus{border-color:var(--green-mid)}
+select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;font-family:'Sarabun',sans-serif;font-size:13px;background:#fff;outline:none;cursor:pointer}
+
+.crm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.btn-export{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1.5px solid var(--gray-200);background:#fff;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--gray-700);cursor:pointer;transition:background .15s}
+.btn-export:hover{background:var(--gray-50)}
+
+.record-card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .15s}
+.record-card:hover{border-color:#d1d5db}
+.record-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.record-avatar{width:40px;height:40px;background:#ecfdf5;border-radius:50%;color:var(--green);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.record-info{margin-left:12px;flex:1;min-width:0}
+.record-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-meta{font-size:12px;color:var(--gray-400);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.record-score{font-size:18px;font-weight:800;color:var(--gray-900)}
+.record-denom{font-size:12px;color:var(--gray-400);font-weight:400}
+.record-actions{display:flex;gap:4px}
+.icon-btn{width:32px;height:32px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-400);transition:all .15s}
+.icon-btn:hover{background:var(--gray-100);color:var(--gray-700)}
+.icon-btn.red:hover{background:var(--red-light);color:var(--red)}
+
+.scores-mini{display:flex;gap:5px;margin-top:12px;margin-left:52px;flex-wrap:wrap}
+.score-chip{width:28px;height:28px;border-radius:7px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.score-chip.hi{background:#d1fae5;color:#065f46}
+.score-chip.mid{background:#fef3c7;color:#92400e}
+.score-chip.lo{background:#fee2e2;color:#991b1b}
+.record-date{font-size:11px;color:var(--gray-300);margin-top:6px;margin-left:52px}
+.record-note-preview{font-size:12px;color:var(--gray-500);margin-top:4px;margin-left:52px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.empty-state{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:64px;text-align:center;color:var(--gray-400)}
+.empty-icon{font-size:48px;margin-bottom:10px}
+.empty-msg{font-size:15px;font-weight:600}
+.empty-sub{font-size:13px;margin-top:4px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-header{padding:22px 24px;border-bottom:1px solid var(--gray-100)}
+.modal-name{font-size:18px;font-weight:800}
+.modal-meta{font-size:13px;color:var(--gray-400);margin-top:3px}
+.modal-tags{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.tag{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:600;background:var(--gray-100);color:var(--gray-600)}
+.modal-body{padding:22px 24px}
+.modal-score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-criteria{display:flex;flex-direction:column;gap:8px}
+.modal-criterion{display:flex;align-items:center;gap:8px}
+.modal-cnum{font-size:11px;color:var(--gray-400);width:16px;flex-shrink:0}
+.modal-clabel{font-size:12px;flex:1;color:var(--gray-700)}
+.modal-dots{display:flex;gap:3px}
+.modal-dot{width:22px;height:22px;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-300)}
+.modal-dot.active{background:var(--green);color:#fff}
+.modal-note-box{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:12px 14px;margin-top:16px}
+.modal-note-label{font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.modal-note-text{font-size:13px;color:var(--gray-700);line-height:1.6}
+.modal-footer{padding:0 24px 22px;display:flex;gap:10px}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:24px}
+.page-title{font-size:24px;font-weight:800}
+.page-sub{font-size:14px;color:var(--gray-500);margin-top:4px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M7 8h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="logo-title">Franchise Assessment</div>
+        <div class="logo-sub">Investor Evaluation System</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-form" onclick="showView('form')">แบบประเมิน</button>
+      <button class="nav-tab" id="tab-crm" onclick="showView('crm')">
+        CRM Database <span class="badge" id="crm-count">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- FORM VIEW -->
+<div id="view-form" class="page">
+  <div class="page-header">
+    <div class="page-title">แบบประเมินผู้ลงทุนแฟรนไชส์</div>
+    <div class="page-sub">กรอกข้อมูลให้ครบถ้วนและให้คะแนนทุกหัวข้อ 1–5 คะแนน</div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">1</span>ข้อมูลส่วนตัว</div>
+    <div class="field-grid">
+      <div class="field-full"><label>ชื่อ-นามสกุล *</label><input type="text" id="f-name" placeholder="กรอกชื่อ-นามสกุลผู้ประเมิน"></div>
+      <div><label>เบอร์โทรศัพท์ *</label><input type="tel" id="f-phone" placeholder="0XX-XXX-XXXX"></div>
+      <div><label>อาชีพปัจจุบัน</label><input type="text" id="f-occ" placeholder="เช่น พนักงานบริษัท"></div>
+      <div class="field-full"><label>จังหวัดที่ต้องการเปิดสาขา</label><input type="text" id="f-prov" placeholder="เช่น กรุงเทพมหานคร, เชียงใหม่"></div>
+    </div>
+  </div>
+
+  <!-- Brand -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">2</span>แบรนด์ที่สนใจ *</div>
+    <div class="brand-btns">
+      <button class="brand-btn" id="brand-JIANCHA" onclick="selectBrand('JIANCHA')">JIANCHA</button>
+      <button class="brand-btn" id="brand-Polly" onclick="selectBrand('Polly')">Polly</button>
+    </div>
+  </div>
+
+  <!-- Scoring -->
+  <div class="card">
+    <div class="card-title"><span class="step-num">3</span>หัวข้อการประเมิน</div>
+    <p style="font-size:12px;color:var(--gray-400);margin-bottom:16px;margin-left:32px">ให้คะแนน 1–5 ในแต่ละหัวข้อ เมื่อเลือกคะแนนแล้ว คำอธิบายเกณฑ์จะปรากฏ</p>
+    <div id="criteria-list"></div>
+  </div>
+
+  <!-- Notes & Comments -->
+  <div class="notes-section">
+    <div class="notes-title"><span class="step-num">4</span>หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div>
+    <p class="notes-sub">บันทึกข้อสังเกต จุดเด่น จุดด้อย หรือข้อมูลเพิ่มเติมเกี่ยวกับผู้ถูกประเมิน</p>
+    <div class="notes-grid">
+      <div>
+        <label>ความประทับใจโดยรวม</label>
+        <div class="radio-group" id="impression-group">
+          <label class="radio-opt" id="imp-pos" onclick="setImpression('positive')"><input type="radio" name="impression" value="positive">👍 ดีมาก</label>
+          <label class="radio-opt" id="imp-neu" onclick="setImpression('neutral')"><input type="radio" name="impression" value="neutral">👌 ปานกลาง</label>
+          <label class="radio-opt" id="imp-neg" onclick="setImpression('negative')"><input type="radio" name="impression" value="negative">👎 ต้องปรับปรุง</label>
+        </div>
+      </div>
+      <div>
+        <label>ชื่อผู้สัมภาษณ์</label>
+        <input type="text" id="f-interviewer" placeholder="ชื่อผู้ทำการสัมภาษณ์">
+      </div>
+      <div class="notes-full">
+        <label>จุดเด่นของผู้ถูกประเมิน</label>
+        <textarea id="f-strength" placeholder="เช่น มีประสบการณ์ธุรกิจมาก่อน, มีแผนธุรกิจที่ชัดเจน, มีเงินทุนพร้อม..."></textarea>
+      </div>
+      <div class="notes-full">
+        <label>จุดที่ควรพัฒนา / ข้อกังวล</label>
+        <textarea id="f-weakness" placeholder="เช่น ยังขาดประสบการณ์การบริหารทีม, คาดหวังผลตอบแทนสูงเกินจริง..."></textarea>
+      </div>
+      <div class="notes-full">
+        <label>ความคิดเห็นและข้อเสนอแนะเพิ่มเติม</label>
+        <textarea id="f-notes" placeholder="บันทึกข้อสังเกตอื่น ๆ หรือข้อมูลที่ได้จากการสัมภาษณ์..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Preview -->
+  <div class="score-preview">
+    <div>
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:2px">คะแนนที่ได้</div>
+      <div><span class="score-big" id="live-score">0</span><span class="score-denom"> / 50</span></div>
+      <div class="score-bar-wrap" style="width:220px;margin-top:8px">
+        <div class="score-bar" id="score-bar" style="width:0%;background:var(--gray-200)"></div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px">ผลเบื้องต้น</div>
+      <div id="live-result"><span class="pill pill-gray">ยังไม่มีคะแนน</span></div>
+    </div>
+  </div>
+
+  <button class="btn-submit" onclick="handleSubmit()">บันทึกผลการประเมิน</button>
+</div>
+
+<!-- SUCCESS VIEW -->
+<div id="view-success" style="display:none">
+  <div class="success-wrap">
+    <div class="success-icon">
+      <svg width="40" height="40" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#065f46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="success-title">บันทึกสำเร็จ!</div>
+    <div class="success-sub">ข้อมูลของ <strong id="s-name"></strong> ถูกบันทึกแล้ว</div>
+    <div style="margin:14px 0">
+      <span class="success-score" id="s-score"></span>
+      <span style="font-size:20px;color:var(--gray-400)"> / 50 คะแนน</span>
+    </div>
+    <div id="s-result-badge"></div>
+    <div class="success-actions">
+      <button class="btn-outline" onclick="resetForm()">ประเมินคนใหม่</button>
+      <button class="btn-green" onclick="showView('crm')">ดู CRM Database</button>
+    </div>
+  </div>
+</div>
+
+<!-- CRM VIEW -->
+<div id="view-crm" style="display:none" class="page-wide">
+  <div class="crm-header">
+    <div>
+      <div class="page-title">CRM Database</div>
+      <div class="page-sub" id="crm-total-label">0 รายการทั้งหมด</div>
+    </div>
+    <button class="btn-export" onclick="exportCSV()">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M20 21H4" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Export CSV / Google Sheets
+    </button>
+  </div>
+
+  <!-- Stats (clickable filters) -->
+  <div class="stats-grid">
+    <div class="stat-card" id="sc-all" onclick="quickFilter('all')"><div class="stat-label">ทั้งหมด</div><div class="stat-val" id="stat-all">0</div></div>
+    <div class="stat-card" id="sc-pass" onclick="quickFilter('ผ่าน')"><div class="stat-label">✅ ผ่าน</div><div class="stat-val green" id="stat-pass">0</div></div>
+    <div class="stat-card" id="sc-wait" onclick="quickFilter('รอพิจารณา')"><div class="stat-label">⏳ รอพิจารณา</div><div class="stat-val amber" id="stat-wait">0</div></div>
+    <div class="stat-card" id="sc-fail" onclick="quickFilter('ไม่ผ่าน')"><div class="stat-label">❌ ไม่ผ่าน</div><div class="stat-val red" id="stat-fail">0</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <input class="filter-search" id="f-search" type="text" placeholder="ค้นหาชื่อ, เบอร์โทร, จังหวัด..." oninput="renderCRM()">
+    <select id="f-brand" onchange="renderCRM()">
+      <option value="all">ทุกแบรนด์</option>
+      <option value="JIANCHA">JIANCHA</option>
+      <option value="Polly">Polly</option>
+    </select>
+    <select id="f-result" onchange="renderCRM()">
+      <option value="all">ทุกผลลัพธ์</option>
+      <option value="ผ่าน">ผ่าน</option>
+      <option value="รอพิจารณา">รอพิจารณา</option>
+      <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+    </select>
+    <select id="f-sort" onchange="renderCRM()">
+      <option value="newest">ใหม่สุดก่อน</option>
+      <option value="oldest">เก่าสุดก่อน</option>
+      <option value="score-desc">คะแนน: สูง → ต่ำ</option>
+      <option value="score-asc">คะแนน: ต่ำ → สูง</option>
+      <option value="name-asc">ชื่อ A → Z</option>
+    </select>
+  </div>
+
+  <div id="crm-list"></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-name" id="m-name"></div>
+      <div class="modal-meta" id="m-meta"></div>
+      <div class="modal-tags" id="m-tags"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-score-row">
+        <div>
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:2px">คะแนนรวม</div>
+          <div><span style="font-size:36px;font-weight:800" id="m-score"></span><span style="font-size:16px;color:var(--gray-400)"> / 50</span></div>
+        </div>
+        <div id="m-result"></div>
+      </div>
+      <div class="modal-criteria" id="m-criteria"></div>
+      <div class="modal-note-box" id="m-notes-box" style="display:none">
+        <div class="modal-note-label">หมายเหตุและความคิดเห็น</div>
+        <div class="modal-note-text" id="m-notes-content"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" style="padding:12px" onclick="document.getElementById('modal').style.display='none'">ปิด</button>
+      <button class="btn-green" style="flex:1;padding:12px" onclick="exportPDF(currentModal)">📄 Export PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CRITERIA = [
+  "ความพร้อมในการบริหารร้านและทุ่มเทเวลา",
+  "ความคาดหวังด้านรายได้และความเข้าใจธุรกิจ",
+  "เป้าหมายทางธุรกิจและวิสัยทัศน์",
+  "ความเข้าใจและยอมรับมาตรฐาน QSC",
+  "ทัศนคติต่อการพัฒนาสินค้าและเมนูใหม่",
+  "ทัศนคติต่อการแข่งขันภายในแบรนด์",
+  "การรับมือสถานการณ์ฉุกเฉินและบริหารความเสี่ยง",
+  "การจัดการข้อร้องเรียนลูกค้า",
+  "ความร่วมมือกับบริษัทและการปฏิบัติตามนโยบาย",
+  "การสรรหา พัฒนา และรักษาบุคลากร",
+];
+
+const DESCS = [
+  ["ไม่มีเวลาบริหารร้านและไม่มีผู้รับผิดชอบหลัก","มีเวลาจำกัด และยังไม่มีแผนบริหารที่ชัดเจน","มีเวลาเข้าดูแลเป็นบางช่วง และพึ่งพาผู้จัดการร้าน","มีเวลาบริหารร้านเป็นประจำ และมีแผนบริหารที่ชัดเจน","สามารถดูแลร้านได้ด้วยตนเองเต็มเวลา หรือมีผู้บริหารประจำที่มีประสบการณ์ชัดเจน"],
+  ["คาดหวังรายได้ไม่สอดคล้องกับความเป็นจริงของธุรกิจ","มุ่งหวังผลตอบแทนระยะสั้นมากเกินไป","เข้าใจภาพรวม แต่ยังมีความคาดหวังสูงกว่าความเป็นจริงบางส่วน","เข้าใจธุรกิจค่อนข้างดี และยอมรับความเสี่ยงได้","เข้าใจต้นทุน กำไร ระยะเวลาคืนทุน และมีความคาดหวังที่สมเหตุสมผล"],
+  ["ไม่มีเป้าหมายหรือวิสัยทัศน์ในการดำเนินธุรกิจ","เป้าหมายไม่ชัดเจน","มีเป้าหมายทั่วไป แต่ยังไม่มีแผนรองรับ","มีเป้าหมายที่ชัดเจนและเป็นไปได้","มีเป้าหมายระยะสั้นและระยะยาวชัดเจน รวมถึงแผนขยายธุรกิจ"],
+  ["ไม่ยอมรับหรือไม่เห็นความสำคัญของมาตรฐาน","มีแนวโน้มปรับเปลี่ยนมาตรฐานตามความเห็นส่วนตัว","เข้าใจหลักการ แต่ยังมีข้อสงสัยบางประเด็น","เข้าใจและยอมรับเป็นส่วนใหญ่","เข้าใจและยอมรับมาตรฐานทั้งหมด พร้อมปฏิบัติตามอย่างเคร่งครัด"],
+  ["ต่อต้านหรือไม่ต้องการเปลี่ยนแปลง","มีความกังวลหรือไม่ค่อยสนับสนุน","เปิดรับในระดับปานกลาง","ยอมรับและพร้อมทดลองเมนูใหม่","เปิดรับการเปลี่ยนแปลงและพร้อมสนับสนุนทุกแคมเปญ"],
+  ["มีทัศนคติเชิงลบอย่างชัดเจนต่อการขยายสาขา","ไม่เห็นด้วยกับการเปิดสาขาใกล้เคียง","มีข้อกังวลแต่ยังยอมรับได้","ยอมรับได้หากมีการบริหารพื้นที่เหมาะสม","เข้าใจกลยุทธ์พื้นที่ขายและมองการแข่งขันเป็นโอกาส"],
+  ["ไม่สามารถอธิบายแนวทางรับมือได้","ขาดการวางแผนและมักแก้ปัญหาเฉพาะหน้า","มีแนวคิดพื้นฐานในการแก้ปัญหา","มีความเข้าใจและวางแผนรับมือได้","มีประสบการณ์และสามารถเสนอแนวทางแก้ไขได้เป็นระบบ"],
+  ["ไม่ให้ความสำคัญกับข้อร้องเรียนลูกค้า","มีแนวโน้มหลีกเลี่ยงหรือโต้แย้งลูกค้า","สามารถรับมือได้ในระดับทั่วไป","มีทัศนคติที่ดีต่อการบริการและการแก้ไขปัญหา","ให้ความสำคัญกับลูกค้า มีแนวทางแก้ไขปัญหาอย่างมืออาชีพ"],
+  ["ไม่พร้อมปฏิบัติตามนโยบายบริษัท","มีข้อโต้แย้งหรือไม่เห็นด้วยกับหลายประเด็น","ยอมรับได้ในระดับทั่วไป","ให้ความร่วมมือดีและยอมรับกฎเกณฑ์","พร้อมปฏิบัติตามนโยบายและทำงานร่วมกับบริษัทอย่างเต็มที่"],
+  ["ไม่ให้ความสำคัญกับการบริหารบุคลากร","ขาดประสบการณ์หรือแนวทางที่ชัดเจน","มีความเข้าใจพื้นฐานในการบริหารทีม","เข้าใจการบริหารคนและสามารถวางแผนได้","มีประสบการณ์บริหารทีมงานและมีแนวทางรักษาพนักงานชัดเจน"],
+];
+
+const STORAGE_KEY = "franchise_crm_v2";
+let scores = Array(10).fill(0);
+let selectedBrand = "";
+let selectedImpression = "";
+let records = [];
+let currentModal = null;
+
+try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch(e) { records = []; }
+
+function initCriteria() {
+  const el = document.getElementById("criteria-list");
+  el.innerHTML = CRITERIA.map((c, i) => `
+    <div class="score-item" id="si-${i}">
+      <div class="score-row">
+        <span class="score-num">${i+1}.</span>
+        <div style="flex:1">
+          <div class="score-label">${c}</div>
+          <div class="score-btns">
+            ${[1,2,3,4,5].map(v => `<button class="score-btn" id="sb-${i}-${v}" onclick="setScore(${i},${v})">${v}</button>`).join("")}
+          </div>
+          <div class="score-descs" id="sd-${i}">
+            ${DESCS[i].map((d,di) => `
+              <div class="score-desc-row" id="sdr-${i}-${di+1}">
+                <span class="score-desc-dot inactive" id="sdd-${i}-${di+1}">${di+1}</span>
+                <span id="sdtext-${i}-${di+1}">${d}</span>
+              </div>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function setScore(idx, val) {
+  scores[idx] = val;
+  for(let v=1;v<=5;v++) {
+    document.getElementById(`sb-${idx}-${v}`).classList.toggle("active", v===val);
+  }
+  document.getElementById(`si-${idx}`).classList.toggle("scored", val>0);
+  // Update descriptions highlight
+  for(let v=1;v<=5;v++) {
+    const row = document.getElementById(`sdr-${idx}-${v}`);
+    const dot = document.getElementById(`sdd-${idx}-${v}`);
+    if(row && dot) {
+      row.classList.toggle("highlight", v===val);
+      dot.classList.toggle("active", v===val);
+      dot.classList.toggle("inactive", v!==val);
+    }
+  }
+  updateLiveScore();
+}
+
+function updateLiveScore() {
+  const total = scores.reduce((a,b)=>a+b,0);
+  document.getElementById("live-score").textContent = total;
+  const pct = (total/50)*100;
+  const bar = document.getElementById("score-bar");
+  bar.style.width = pct + "%";
+  const color = total>=45?"#065f46":total>=35?"#d97706":"#dc2626";
+  bar.style.background = total>0?color:"var(--gray-200)";
+  const resEl = document.getElementById("live-result");
+  if(total===0) resEl.innerHTML = '<span class="pill pill-gray">ยังไม่มีคะแนน</span>';
+  else resEl.innerHTML = `<span class="pill ${pillClass(getResult(total))}">${getScoreLabel(total)}</span>`;
+}
+
+function getResult(score) {
+  if(score>=45) return "ผ่าน";
+  if(score>=35) return "รอพิจารณา";
+  return "ไม่ผ่าน";
+}
+function getScoreLabel(score) {
+  if(score>=45) return "เหมาะสมมาก";
+  if(score>=40) return "เหมาะสม";
+  if(score>=35) return "ผ่านเกณฑ์";
+  return "พิจารณาเพิ่มเติม";
+}
+function pillClass(r) {
+  if(r==="ผ่าน") return "pill-pass";
+  if(r==="รอพิจารณา") return "pill-wait";
+  return "pill-fail";
+}
+
+function selectBrand(b) {
+  selectedBrand = b;
+  document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
+  const btn = document.getElementById("brand-"+b);
+  if(btn) { btn.classList.add("selected"); btn.textContent = "✓ " + b; }
+}
+
+function setImpression(val) {
+  selectedImpression = val;
+  document.querySelectorAll(".radio-opt").forEach(el => { el.classList.remove("selected-pos","selected-neg","selected-neu"); });
+  const map = {positive:"imp-pos",neutral:"imp-neu",negative:"imp-neg"};
+  const cls = {positive:"selected-pos",neutral:"selected-neu",negative:"selected-neg"};
+  document.getElementById(map[val]).classList.add(cls[val]);
+}
+
+function handleSubmit() {
+  const name = document.getElementById("f-name").value.trim();
+  const phone = document.getElementById("f-phone").value.trim();
+  if(!name || !phone) { alert("กรุณากรอกชื่อ-นามสกุลและเบอร์โทรศัพท์"); return; }
+  if(!selectedBrand) { alert("กรุณาเลือกแบรนด์ที่สนใจ"); return; }
+  if(scores.includes(0)) { alert("กรุณาให้คะแนนทุกหัวข้อ (ข้อ 1-10)"); return; }
+  const total = scores.reduce((a,b)=>a+b,0);
+  const result = getResult(total);
+  const rec = {
+    name, phone,
+    occupation: document.getElementById("f-occ").value.trim(),
+    province: document.getElementById("f-prov").value.trim(),
+    brand: selectedBrand,
+    scores: [...scores],
+    totalScore: total,
+    result,
+    impression: selectedImpression,
+    interviewer: document.getElementById("f-interviewer").value.trim(),
+    strength: document.getElementById("f-strength").value.trim(),
+    weakness: document.getElementById("f-weakness").value.trim(),
+    notes: document.getElementById("f-notes").value.trim(),
+    submittedAt: new Date().toLocaleString("th-TH"),
+    ts: Date.now(),
+  };
+  records.unshift(rec);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  updateBadge();
+  document.getElementById("s-name").textContent = name;
+  document.getElementById("s-score").textContent = total;
+  document.getElementById("s-result-badge").innerHTML = `<span class="pill ${pillClass(result)}" style="font-size:14px;padding:6px 16px">${result} — ${getScoreLabel(total)}</span>`;
+  document.getElementById("view-form").style.display = "none";
+  document.getElementById("view-success").style.display = "block";
+}
+
+function resetForm() {
+  scores = Array(10).fill(0); selectedBrand = ""; selectedImpression = "";
+  ["f-name","f-phone","f-occ","f-prov","f-interviewer","f-strength","f-weakness","f-notes"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = "";
+  });
+  document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
+  document.querySelectorAll(".score-btn").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".score-item").forEach(el => el.classList.remove("scored"));
+  document.querySelectorAll(".score-descs").forEach(el => el.style.display="none");
+  document.querySelectorAll(".score-desc-row").forEach(el => el.classList.remove("highlight"));
+  document.querySelectorAll(".score-desc-dot").forEach(el => { el.classList.remove("active"); el.classList.add("inactive"); });
+  document.querySelectorAll(".radio-opt").forEach(el => el.classList.remove("selected-pos","selected-neg","selected-neu"));
+  updateLiveScore();
+  showView("form");
+}
+
+function showView(v) {
+  document.getElementById("view-form").style.display = v==="form"?"block":"none";
+  document.getElementById("view-success").style.display = "none";
+  document.getElementById("view-crm").style.display = v==="crm"?"block":"none";
+  document.getElementById("tab-form").classList.toggle("active", v==="form");
+  document.getElementById("tab-crm").classList.toggle("active", v==="crm");
+  if(v==="crm") renderCRM();
+}
+
+function updateBadge() { document.getElementById("crm-count").textContent = records.length; }
+
+function quickFilter(val) {
+  document.getElementById("f-result").value = val;
+  ["all","pass","wait","fail"].forEach(k => document.getElementById("sc-"+k)?.classList.remove("active-filter"));
+  const map = {all:"sc-all","ผ่าน":"sc-pass","รอพิจารณา":"sc-wait","ไม่ผ่าน":"sc-fail"};
+  if(map[val]) document.getElementById(map[val]).classList.add("active-filter");
+  renderCRM();
+}
+
+function getFiltered() {
+  const search = document.getElementById("f-search").value.toLowerCase();
+  const brand = document.getElementById("f-brand").value;
+  const result = document.getElementById("f-result").value;
+  const sort = document.getElementById("f-sort").value;
+  let arr = records.filter(r =>
+    (!search || r.name.toLowerCase().includes(search) || r.phone.includes(search) || (r.province||"").toLowerCase().includes(search)) &&
+    (brand==="all" || r.brand===brand) &&
+    (result==="all" || r.result===result)
+  );
+  if(sort==="oldest") arr = [...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
+  else if(sort==="score-desc") arr = [...arr].sort((a,b)=>b.totalScore-a.totalScore);
+  else if(sort==="score-asc") arr = [...arr].sort((a,b)=>a.totalScore-b.totalScore);
+  else if(sort==="name-asc") arr = [...arr].sort((a,b)=>a.name.localeCompare(b.name,"th"));
+  // default: newest = records order (already unshifted)
+  return arr;
+}
+
+function renderCRM() {
+  const pass = records.filter(r=>r.result==="ผ่าน").length;
+  const wait = records.filter(r=>r.result==="รอพิจารณา").length;
+  const fail = records.filter(r=>r.result==="ไม่ผ่าน").length;
+  document.getElementById("stat-all").textContent = records.length;
+  document.getElementById("stat-pass").textContent = pass;
+  document.getElementById("stat-wait").textContent = wait;
+  document.getElementById("stat-fail").textContent = fail;
+  document.getElementById("crm-total-label").textContent = records.length + " รายการทั้งหมด";
+  updateBadge();
+
+  const filtered = getFiltered();
+  const list = document.getElementById("crm-list");
+  if(filtered.length===0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>
+      <div class="empty-msg">${records.length===0?"ยังไม่มีข้อมูล":"ไม่พบข้อมูลที่ค้นหา"}</div>
+      ${records.length===0?'<div class="empty-sub">เริ่มประเมินผู้ลงทุนได้เลย</div>':""}</div>`;
+    return;
+  }
+
+  const impIcon = {positive:"👍",neutral:"👌",negative:"👎"};
+
+  list.innerHTML = filtered.map(r => {
+    const ri = records.indexOf(r);
+    const chips = r.scores.map((s,si) => `<div class="score-chip ${s>=4?"hi":s===3?"mid":"lo"}" title="${CRITERIA[si]}: ${DESCS[si][s-1]}">${s}</div>`).join("");
+    const hasNotes = r.strength || r.weakness || r.notes;
+    const notePreview = r.strength ? "💪 "+r.strength : (r.notes ? "📝 "+r.notes : "");
+    return `
+    <div class="record-card">
+      <div class="record-top">
+        <div class="record-avatar">${r.name.charAt(0)}</div>
+        <div class="record-info">
+          <div class="record-name">${r.name} ${r.impression?impIcon[r.impression]:""}</div>
+          <div class="record-meta">${r.phone}${r.province?" · "+r.province:""}${r.occupation?" · "+r.occupation:""}${r.interviewer?" · สัมภาษณ์โดย: "+r.interviewer:""}</div>
+        </div>
+        <div class="record-right">
+          <span class="pill" style="background:var(--gray-100);color:var(--gray-600);border-color:var(--gray-200);font-size:12px">${r.brand}</span>
+          <div><span class="record-score">${r.totalScore}</span><span class="record-denom">/50</span></div>
+          <span class="pill ${pillClass(r.result)}">${r.result}</span>
+          <div class="record-actions">
+            <button class="icon-btn" title="ดูรายละเอียด" onclick="openModal(${ri})">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <button class="icon-btn" title="Export PDF" onclick="exportPDF(records[${ri}])">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="icon-btn red" title="ลบ" onclick="deleteRecord(${ri})">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="scores-mini">${chips}</div>
+      ${notePreview?`<div class="record-note-preview">${notePreview}</div>`:""}
+      <div class="record-date">${r.submittedAt}</div>
+    </div>`;
+  }).join("");
+}
+
+function deleteRecord(idx) {
+  if(!confirm("ต้องการลบข้อมูลของ "+records[idx].name+"?")) return;
+  records.splice(idx,1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  renderCRM();
+}
+
+function openModal(idx) {
+  const r = records[idx];
+  currentModal = r;
+  const impLabel = {positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
+  document.getElementById("m-name").textContent = r.name;
+  document.getElementById("m-meta").textContent = [r.phone, r.province, r.occupation].filter(Boolean).join(" · ");
+  document.getElementById("m-tags").innerHTML =
+    `<span class="tag">${r.brand}</span>`+
+    (r.interviewer?`<span class="tag">สัมภาษณ์โดย: ${r.interviewer}</span>`:"")+
+    (r.impression?`<span class="tag">${impLabel[r.impression]}</span>`:"")+
+    `<span class="tag">${r.submittedAt}</span>`+
+    `<span class="pill ${pillClass(r.result)}">${r.result}</span>`;
+  document.getElementById("m-score").textContent = r.totalScore;
+  document.getElementById("m-result").innerHTML = `<span class="pill ${pillClass(r.result)}" style="font-size:14px;padding:6px 14px">${getScoreLabel(r.totalScore)}</span>`;
+  document.getElementById("m-criteria").innerHTML = CRITERIA.map((c,i) => `
+    <div class="modal-criterion">
+      <span class="modal-cnum">${i+1}.</span>
+      <span class="modal-clabel">${c}</span>
+      <div class="modal-dots">${[1,2,3,4,5].map(v=>`<div class="modal-dot ${r.scores[i]===v?"active":""}" title="${DESCS[i][v-1]}">${v}</div>`).join("")}</div>
+    </div>`).join("");
+  const noteParts = [];
+  if(r.strength) noteParts.push(`<div style="margin-bottom:8px"><strong>💪 จุดเด่น:</strong><br>${r.strength}</div>`);
+  if(r.weakness) noteParts.push(`<div style="margin-bottom:8px"><strong>⚠️ จุดที่ควรพัฒนา:</strong><br>${r.weakness}</div>`);
+  if(r.notes) noteParts.push(`<div><strong>📝 หมายเหตุ:</strong><br>${r.notes}</div>`);
+  const notesBox = document.getElementById("m-notes-box");
+  const notesContent = document.getElementById("m-notes-content");
+  if(noteParts.length>0) {
+    notesContent.innerHTML = noteParts.join("");
+    notesBox.style.display = "block";
+  } else {
+    notesBox.style.display = "none";
+  }
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(e) {
+  if(e.target===document.getElementById("modal")) document.getElementById("modal").style.display="none";
+}
+
+function exportCSV() {
+  const filtered = getFiltered();
+  const headers = ["ชื่อ-นามสกุล","เบอร์โทร","อาชีพ","จังหวัด","แบรนด์",
+    ...CRITERIA.map((_,i)=>`ข้อ ${i+1}`),"คะแนนรวม","ผลการพิจารณา",
+    "ความประทับใจ","ผู้สัมภาษณ์","จุดเด่น","จุดที่ควรพัฒนา","หมายเหตุ","วันที่"];
+  const impTxt = {positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"};
+  const rows = filtered.map(r => [
+    r.name,r.phone,r.occupation||"",r.province||"",r.brand,
+    ...r.scores,r.totalScore,r.result,
+    r.impression?impTxt[r.impression]:"",
+    r.interviewer||"",r.strength||"",r.weakness||"",r.notes||"",r.submittedAt
+  ]);
+  const csv = [headers,...rows].map(row => row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="franchise_assessment_"+Date.now()+".csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportPDF(r) {
+  document.getElementById("modal").style.display="none";
+  const w = window.open("","_blank");
+  if(!w) { alert("กรุณาอนุญาต popup เพื่อ export PDF"); return; }
+  const scoreRows = CRITERIA.map((c,i) => `
+    <tr>
+      <td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#374151;vertical-align:top">${i+1}</td>
+      <td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;vertical-align:top">
+        <div style="font-weight:700;margin-bottom:3px">${c}</div>
+        <div style="font-size:11px;color:#6b7280">${DESCS[i][r.scores[i]-1]}</div>
+      </td>
+      ${[1,2,3,4,5].map(v=>`<td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-size:13px;font-weight:700;vertical-align:top;${r.scores[i]===v?"background:#065f46;color:white;":"color:#d1d5db;"}">${r.scores[i]===v?"●":"○"}</td>`).join("")}
+    </tr>`).join("");
+  const resColor = r.result==="ผ่าน"?"#065f46":r.result==="รอพิจารณา"?"#92400e":"#991b1b";
+  const impLabel = {positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
+  const notesSection = (r.strength||r.weakness||r.notes) ? `
+    <div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
+      <div style="background:#f9fafb;padding:10px 14px;font-size:12px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div>
+      <div style="padding:14px;display:grid;gap:10px">
+        ${r.strength?`<div><div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:3px">💪 จุดเด่น</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.strength}</div></div>`:""}
+        ${r.weakness?`<div><div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:3px">⚠️ จุดที่ควรพัฒนา</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.weakness}</div></div>`:""}
+        ${r.notes?`<div><div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:3px">📝 หมายเหตุเพิ่มเติม</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.notes}</div></div>`:""}
+      </div>
+    </div>` : "";
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><title>แบบประเมิน - ${r.name}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body{font-family:'Sarabun',sans-serif;margin:0;padding:32px;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #065f46;padding-bottom:14px;margin-bottom:18px}
+      .brand-tag{background:#065f46;color:#fff;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700;display:inline-block;margin-top:7px}
+      .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+      .info-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:8px 12px}
+      .info-lbl{font-size:10px;color:#9ca3af;margin-bottom:2px}
+      .info-val{font-size:13px;font-weight:700}
+      table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}
+      th{background:#065f46;color:#fff;padding:9px 10px;text-align:left;font-size:12px;font-weight:700}
+      .summary{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:2px solid #065f46;border-radius:10px;padding:14px 22px;margin-bottom:12px}
+      .score-big{font-size:44px;font-weight:800;color:#065f46;line-height:1}
+      .result-chip{display:inline-block;padding:7px 22px;border-radius:100px;font-size:18px;font-weight:800;color:#fff;background:${resColor}}
+      .footer{font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;margin-top:6px}
+      @media print{body{padding:18px}}
+    </style>
+  </head><body>
+    <div class="hdr">
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#065f46">แบบประเมินผู้ลงทุนแฟรนไชส์</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:2px">วันที่ประเมิน: ${r.submittedAt}${r.interviewer?" &nbsp;|&nbsp; ผู้สัมภาษณ์: "+r.interviewer:""}</div>
+        <div class="brand-tag">${r.brand}</div>
+      </div>
+      <div style="text-align:right;font-size:10px;color:#d1d5db">CONFIDENTIAL</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-box"><div class="info-lbl">ชื่อ-นามสกุล</div><div class="info-val">${r.name}</div></div>
+      <div class="info-box"><div class="info-lbl">เบอร์โทรศัพท์</div><div class="info-val">${r.phone}</div></div>
+      <div class="info-box"><div class="info-lbl">อาชีพปัจจุบัน</div><div class="info-val">${r.occupation||"-"}</div></div>
+      <div class="info-box"><div class="info-lbl">จังหวัดที่ต้องการเปิดสาขา</div><div class="info-val">${r.province||"-"}</div></div>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:30px">ข้อ</th><th>หัวข้อประเมิน / เกณฑ์ที่ได้รับ</th>
+        <th style="width:34px;text-align:center">1</th><th style="width:34px;text-align:center">2</th>
+        <th style="width:34px;text-align:center">3</th><th style="width:34px;text-align:center">4</th>
+        <th style="width:34px;text-align:center">5</th>
+      </tr></thead>
+      <tbody>${scoreRows}</tbody>
+    </table>
+    <div class="summary">
+      <div>
+        <div style="font-size:12px;color:#374151;margin-bottom:3px">คะแนนรวม</div>
+        <div><span class="score-big">${r.totalScore}</span><span style="font-size:20px;color:#9ca3af"> / 50</span></div>
+        <div style="font-size:12px;color:#6b7280;margin-top:3px">${getScoreLabel(r.totalScore)}${r.impression?" &nbsp;·&nbsp; ความประทับใจ: "+{positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"}[r.impression]:""}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:#374151;margin-bottom:7px">ผลการพิจารณา</div>
+        <div class="result-chip">${r.result}</div>
+      </div>
+    </div>
+    ${notesSection}
+    <div class="footer" style="margin-top:${notesSection?"10":"0"}px">
+      เกณฑ์การพิจารณา: 45-50 คะแนน = เหมาะสมมาก &nbsp;|&nbsp; 40-44 คะแนน = เหมาะสม &nbsp;|&nbsp; 35-39 คะแนน = ผ่านเกณฑ์ &nbsp;|&nbsp; ต่ำกว่า 35 คะแนน = พิจารณาเพิ่มเติม
+    </div>
+    <script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+// Boot
+initCriteria();
+updateBadge();
+// Highlight "all" stat card by default
+document.getElementById("sc-all").classList.add("active-filter");
+</script>
+</body>
+</html>

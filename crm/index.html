@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>แบบประเมินผู้ลงทุนแฟรนไชส์</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -15,6 +16,17 @@
   --gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-900:#111827;
 }
 body{font-family:'Sarabun',sans-serif;background:#f8fafc;color:var(--gray-900);min-height:100vh}
+
+/* SYNC INDICATOR */
+.sync-bar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:999;transition:background .3s}
+.sync-bar.syncing{background:linear-gradient(90deg,var(--green),var(--green-mid),var(--green));background-size:200%;animation:syncpulse 1s linear infinite}
+@keyframes syncpulse{0%{background-position:0%}100%{background-position:200%}}
+.sync-status{position:fixed;bottom:16px;right:16px;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;z-index:999;box-shadow:0 2px 10px rgba(0,0,0,.12);transition:all .3s;opacity:0;pointer-events:none}
+.sync-status.show{opacity:1}
+.sync-status.ok{background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0}
+.sync-status.err{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
+.sync-status.loading{background:#fff;color:var(--gray-600);border:1px solid var(--gray-200)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 
 /* NAV */
 nav{background:#fff;border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
@@ -100,6 +112,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
 .btn-submit:hover{opacity:.92}
 .btn-submit:active{transform:scale(.99)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
 
 /* SUCCESS */
 .success-wrap{max-width:480px;margin:0 auto;padding:64px 20px;text-align:center}
@@ -191,6 +204,9 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
 </head>
 <body>
 
+<div class="sync-bar" id="sync-bar"></div>
+<div class="sync-status" id="sync-status"><div class="sync-dot"></div><span id="sync-text">กำลังเชื่อมต่อ...</span></div>
+
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
@@ -219,7 +235,6 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     <div class="page-sub">กรอกข้อมูลให้ครบถ้วนและให้คะแนนทุกหัวข้อ 1–5 คะแนน</div>
   </div>
 
-  <!-- Personal Info -->
   <div class="card">
     <div class="card-title"><span class="step-num">1</span>ข้อมูลส่วนตัว</div>
     <div class="field-grid">
@@ -230,7 +245,6 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     </div>
   </div>
 
-  <!-- Brand -->
   <div class="card">
     <div class="card-title"><span class="step-num">2</span>แบรนด์ที่สนใจ *</div>
     <div class="brand-btns">
@@ -239,14 +253,12 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     </div>
   </div>
 
-  <!-- Scoring -->
   <div class="card">
     <div class="card-title"><span class="step-num">3</span>หัวข้อการประเมิน</div>
     <p style="font-size:12px;color:var(--gray-400);margin-bottom:16px;margin-left:32px">ให้คะแนน 1–5 ในแต่ละหัวข้อ เมื่อเลือกคะแนนแล้ว คำอธิบายเกณฑ์จะปรากฏ</p>
     <div id="criteria-list"></div>
   </div>
 
-  <!-- Notes & Comments -->
   <div class="notes-section">
     <div class="notes-title"><span class="step-num">4</span>หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div>
     <p class="notes-sub">บันทึกข้อสังเกต จุดเด่น จุดด้อย หรือข้อมูลเพิ่มเติมเกี่ยวกับผู้ถูกประเมิน</p>
@@ -278,7 +290,6 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     </div>
   </div>
 
-  <!-- Score Preview -->
   <div class="score-preview">
     <div>
       <div style="font-size:13px;color:var(--gray-500);margin-bottom:2px">คะแนนที่ได้</div>
@@ -293,7 +304,7 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     </div>
   </div>
 
-  <button class="btn-submit" onclick="handleSubmit()">บันทึกผลการประเมิน</button>
+  <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">บันทึกผลการประเมิน</button>
 </div>
 
 <!-- SUCCESS VIEW -->
@@ -329,7 +340,6 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     </button>
   </div>
 
-  <!-- Stats (clickable filters) -->
   <div class="stats-grid">
     <div class="stat-card" id="sc-all" onclick="quickFilter('all')"><div class="stat-label">ทั้งหมด</div><div class="stat-val" id="stat-all">0</div></div>
     <div class="stat-card" id="sc-pass" onclick="quickFilter('ผ่าน')"><div class="stat-label">✅ ผ่าน</div><div class="stat-val green" id="stat-pass">0</div></div>
@@ -337,7 +347,6 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
     <div class="stat-card" id="sc-fail" onclick="quickFilter('ไม่ผ่าน')"><div class="stat-label">❌ ไม่ผ่าน</div><div class="stat-val red" id="stat-fail">0</div></div>
   </div>
 
-  <!-- Filters -->
   <div class="filter-row">
     <input class="filter-search" id="f-search" type="text" placeholder="ค้นหาชื่อ, เบอร์โทร, จังหวัด..." oninput="renderCRM()">
     <select id="f-brand" onchange="renderCRM()">
@@ -393,6 +402,14 @@ select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;fon
 </div>
 
 <script>
+// ─── SUPABASE SETUP ───────────────────────────────────────────────
+const SUPABASE_URL = 'https://tncespouzuslapdsgvza.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuY2VzcG91enVzbGFwZHNndnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Nzg4NjcsImV4cCI6MjA5NzE1NDg2N30.usH9zMfaFakEv-H8Ls2UfRdupKQgQBkwEBSyL6vNXLI';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const TABLE = 'franchise_assessments';
+
+// ─── CRITERIA & DESCRIPTIONS ─────────────────────────────────────
 const CRITERIA = [
   "ความพร้อมในการบริหารร้านและทุ่มเทเวลา",
   "ความคาดหวังด้านรายได้และความเข้าใจธุรกิจ",
@@ -419,15 +436,139 @@ const DESCS = [
   ["ไม่ให้ความสำคัญกับการบริหารบุคลากร","ขาดประสบการณ์หรือแนวทางที่ชัดเจน","มีความเข้าใจพื้นฐานในการบริหารทีม","เข้าใจการบริหารคนและสามารถวางแผนได้","มีประสบการณ์บริหารทีมงานและมีแนวทางรักษาพนักงานชัดเจน"],
 ];
 
-const STORAGE_KEY = "franchise_crm_v2";
+// ─── STATE ───────────────────────────────────────────────────────
 let scores = Array(10).fill(0);
 let selectedBrand = "";
 let selectedImpression = "";
 let records = [];
 let currentModal = null;
+let realtimeChannel = null;
 
-try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch(e) { records = []; }
+// ─── SYNC UI ─────────────────────────────────────────────────────
+function showSync(type, text) {
+  const el = document.getElementById('sync-status');
+  const bar = document.getElementById('sync-bar');
+  el.className = 'sync-status show ' + type;
+  document.getElementById('sync-text').textContent = text;
+  bar.className = 'sync-bar ' + (type === 'loading' ? 'syncing' : '');
+  if (type !== 'loading') setTimeout(() => { el.classList.remove('show'); bar.className = 'sync-bar'; }, 3000);
+}
 
+// ─── MAP DB ROW → APP RECORD ──────────────────────────────────────
+function rowToRecord(row) {
+  return {
+    _id: row.id,
+    name: row.name,
+    phone: row.phone,
+    occupation: row.occupation || '',
+    province: row.province || '',
+    brand: row.brand,
+    scores: row.scores,
+    totalScore: row.total_score,
+    result: row.result,
+    impression: row.impression || '',
+    interviewer: row.interviewer || '',
+    strength: row.strength || '',
+    weakness: row.weakness || '',
+    notes: row.notes || '',
+    submittedAt: new Date(row.submitted_at).toLocaleString('th-TH'),
+    ts: new Date(row.submitted_at).getTime(),
+  };
+}
+
+// ─── LOAD ALL RECORDS ─────────────────────────────────────────────
+async function loadRecords() {
+  showSync('loading', 'กำลังโหลดข้อมูล...');
+  const { data, error } = await db.from(TABLE).select('*').order('submitted_at', { ascending: false });
+  if (error) { showSync('err', 'โหลดข้อมูลไม่สำเร็จ'); console.error(error); return; }
+  records = data.map(rowToRecord);
+  updateBadge();
+  renderCRM();
+  showSync('ok', '🟢 เชื่อมต่อแล้ว · ' + records.length + ' รายการ');
+}
+
+// ─── REALTIME SUBSCRIPTION ────────────────────────────────────────
+function subscribeRealtime() {
+  realtimeChannel = db.channel('franchise_crm_realtime')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, payload => {
+      const newRec = rowToRecord(payload.new);
+      records.unshift(newRec);
+      updateBadge();
+      renderCRM();
+      showSync('ok', '🟢 มีข้อมูลใหม่: ' + newRec.name);
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: TABLE }, payload => {
+      records = records.filter(r => r._id !== payload.old.id);
+      updateBadge();
+      renderCRM();
+      showSync('ok', '🗑️ ลบข้อมูลแล้ว');
+    })
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') showSync('ok', '🟢 ซิงก์แบบเรียลไทม์');
+      if (status === 'CHANNEL_ERROR') showSync('err', 'การเชื่อมต่อมีปัญหา');
+    });
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────────────
+async function handleSubmit() {
+  const name = document.getElementById("f-name").value.trim();
+  const phone = document.getElementById("f-phone").value.trim();
+  if (!name || !phone) { alert("กรุณากรอกชื่อ-นามสกุลและเบอร์โทรศัพท์"); return; }
+  if (!selectedBrand) { alert("กรุณาเลือกแบรนด์ที่สนใจ"); return; }
+  if (scores.includes(0)) { alert("กรุณาให้คะแนนทุกหัวข้อ (ข้อ 1-10)"); return; }
+
+  const total = scores.reduce((a, b) => a + b, 0);
+  const result = getResult(total);
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'กำลังบันทึก...';
+  showSync('loading', 'กำลังบันทึกข้อมูล...');
+
+  const { error } = await db.from(TABLE).insert({
+    name,
+    phone,
+    occupation: document.getElementById("f-occ").value.trim(),
+    province: document.getElementById("f-prov").value.trim(),
+    brand: selectedBrand,
+    scores: scores,
+    total_score: total,
+    result,
+    impression: selectedImpression || null,
+    interviewer: document.getElementById("f-interviewer").value.trim() || null,
+    strength: document.getElementById("f-strength").value.trim() || null,
+    weakness: document.getElementById("f-weakness").value.trim() || null,
+    notes: document.getElementById("f-notes").value.trim() || null,
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'บันทึกผลการประเมิน';
+
+  if (error) {
+    showSync('err', 'บันทึกไม่สำเร็จ');
+    alert('เกิดข้อผิดพลาด: ' + error.message);
+    return;
+  }
+
+  showSync('ok', '✅ บันทึกสำเร็จ!');
+  document.getElementById("s-name").textContent = name;
+  document.getElementById("s-score").textContent = total;
+  document.getElementById("s-result-badge").innerHTML = `<span class="pill ${pillClass(result)}" style="font-size:14px;padding:6px 16px">${result} — ${getScoreLabel(total)}</span>`;
+  document.getElementById("view-form").style.display = "none";
+  document.getElementById("view-success").style.display = "block";
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────
+async function deleteRecord(idx) {
+  const rec = records[idx];
+  if (!confirm("ต้องการลบข้อมูลของ " + rec.name + "?")) return;
+  showSync('loading', 'กำลังลบ...');
+  const { error } = await db.from(TABLE).delete().eq('id', rec._id);
+  if (error) { showSync('err', 'ลบไม่สำเร็จ'); return; }
+  // realtime will handle UI update
+}
+
+// ─── INIT CRITERIA UI ─────────────────────────────────────────────
 function initCriteria() {
   const el = document.getElementById("criteria-list");
   el.innerHTML = CRITERIA.map((c, i) => `
@@ -453,19 +594,12 @@ function initCriteria() {
 
 function setScore(idx, val) {
   scores[idx] = val;
-  for(let v=1;v<=5;v++) {
-    document.getElementById(`sb-${idx}-${v}`).classList.toggle("active", v===val);
-  }
+  for(let v=1;v<=5;v++) document.getElementById(`sb-${idx}-${v}`).classList.toggle("active", v===val);
   document.getElementById(`si-${idx}`).classList.toggle("scored", val>0);
-  // Update descriptions highlight
   for(let v=1;v<=5;v++) {
     const row = document.getElementById(`sdr-${idx}-${v}`);
     const dot = document.getElementById(`sdd-${idx}-${v}`);
-    if(row && dot) {
-      row.classList.toggle("highlight", v===val);
-      dot.classList.toggle("active", v===val);
-      dot.classList.toggle("inactive", v!==val);
-    }
+    if(row && dot) { row.classList.toggle("highlight", v===val); dot.classList.toggle("active", v===val); dot.classList.toggle("inactive", v!==val); }
   }
   updateLiveScore();
 }
@@ -476,89 +610,37 @@ function updateLiveScore() {
   const pct = (total/50)*100;
   const bar = document.getElementById("score-bar");
   bar.style.width = pct + "%";
-  const color = total>=45?"#065f46":total>=35?"#d97706":"#dc2626";
-  bar.style.background = total>0?color:"var(--gray-200)";
+  bar.style.background = total>=45?"#065f46":total>=35?"#d97706":total>0?"#dc2626":"var(--gray-200)";
   const resEl = document.getElementById("live-result");
   if(total===0) resEl.innerHTML = '<span class="pill pill-gray">ยังไม่มีคะแนน</span>';
   else resEl.innerHTML = `<span class="pill ${pillClass(getResult(total))}">${getScoreLabel(total)}</span>`;
 }
 
-function getResult(score) {
-  if(score>=45) return "ผ่าน";
-  if(score>=35) return "รอพิจารณา";
-  return "ไม่ผ่าน";
-}
-function getScoreLabel(score) {
-  if(score>=45) return "เหมาะสมมาก";
-  if(score>=40) return "เหมาะสม";
-  if(score>=35) return "ผ่านเกณฑ์";
-  return "พิจารณาเพิ่มเติม";
-}
-function pillClass(r) {
-  if(r==="ผ่าน") return "pill-pass";
-  if(r==="รอพิจารณา") return "pill-wait";
-  return "pill-fail";
-}
+function getResult(score) { return score>=45?"ผ่าน":score>=35?"รอพิจารณา":"ไม่ผ่าน"; }
+function getScoreLabel(score) { return score>=45?"เหมาะสมมาก":score>=40?"เหมาะสม":score>=35?"ผ่านเกณฑ์":"พิจารณาเพิ่มเติม"; }
+function pillClass(r) { return r==="ผ่าน"?"pill-pass":r==="รอพิจารณา"?"pill-wait":"pill-fail"; }
 
 function selectBrand(b) {
   selectedBrand = b;
   document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
   const btn = document.getElementById("brand-"+b);
-  if(btn) { btn.classList.add("selected"); btn.textContent = "✓ " + b; }
+  if(btn) { btn.classList.add("selected"); btn.textContent = "✓ "+b; }
 }
 
 function setImpression(val) {
   selectedImpression = val;
-  document.querySelectorAll(".radio-opt").forEach(el => { el.classList.remove("selected-pos","selected-neg","selected-neu"); });
+  document.querySelectorAll(".radio-opt").forEach(el => el.classList.remove("selected-pos","selected-neg","selected-neu"));
   const map = {positive:"imp-pos",neutral:"imp-neu",negative:"imp-neg"};
   const cls = {positive:"selected-pos",neutral:"selected-neu",negative:"selected-neg"};
   document.getElementById(map[val]).classList.add(cls[val]);
 }
 
-function handleSubmit() {
-  const name = document.getElementById("f-name").value.trim();
-  const phone = document.getElementById("f-phone").value.trim();
-  if(!name || !phone) { alert("กรุณากรอกชื่อ-นามสกุลและเบอร์โทรศัพท์"); return; }
-  if(!selectedBrand) { alert("กรุณาเลือกแบรนด์ที่สนใจ"); return; }
-  if(scores.includes(0)) { alert("กรุณาให้คะแนนทุกหัวข้อ (ข้อ 1-10)"); return; }
-  const total = scores.reduce((a,b)=>a+b,0);
-  const result = getResult(total);
-  const rec = {
-    name, phone,
-    occupation: document.getElementById("f-occ").value.trim(),
-    province: document.getElementById("f-prov").value.trim(),
-    brand: selectedBrand,
-    scores: [...scores],
-    totalScore: total,
-    result,
-    impression: selectedImpression,
-    interviewer: document.getElementById("f-interviewer").value.trim(),
-    strength: document.getElementById("f-strength").value.trim(),
-    weakness: document.getElementById("f-weakness").value.trim(),
-    notes: document.getElementById("f-notes").value.trim(),
-    submittedAt: new Date().toLocaleString("th-TH"),
-    ts: Date.now(),
-  };
-  records.unshift(rec);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  updateBadge();
-  document.getElementById("s-name").textContent = name;
-  document.getElementById("s-score").textContent = total;
-  document.getElementById("s-result-badge").innerHTML = `<span class="pill ${pillClass(result)}" style="font-size:14px;padding:6px 16px">${result} — ${getScoreLabel(total)}</span>`;
-  document.getElementById("view-form").style.display = "none";
-  document.getElementById("view-success").style.display = "block";
-}
-
 function resetForm() {
   scores = Array(10).fill(0); selectedBrand = ""; selectedImpression = "";
-  ["f-name","f-phone","f-occ","f-prov","f-interviewer","f-strength","f-weakness","f-notes"].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.value = "";
-  });
+  ["f-name","f-phone","f-occ","f-prov","f-interviewer","f-strength","f-weakness","f-notes"].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
   document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
   document.querySelectorAll(".score-btn").forEach(el => el.classList.remove("active"));
   document.querySelectorAll(".score-item").forEach(el => el.classList.remove("scored"));
-  document.querySelectorAll(".score-descs").forEach(el => el.style.display="none");
   document.querySelectorAll(".score-desc-row").forEach(el => el.classList.remove("highlight"));
   document.querySelectorAll(".score-desc-dot").forEach(el => { el.classList.remove("active"); el.classList.add("inactive"); });
   document.querySelectorAll(".radio-opt").forEach(el => el.classList.remove("selected-pos","selected-neg","selected-neu"));
@@ -595,11 +677,10 @@ function getFiltered() {
     (brand==="all" || r.brand===brand) &&
     (result==="all" || r.result===result)
   );
-  if(sort==="oldest") arr = [...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
-  else if(sort==="score-desc") arr = [...arr].sort((a,b)=>b.totalScore-a.totalScore);
-  else if(sort==="score-asc") arr = [...arr].sort((a,b)=>a.totalScore-b.totalScore);
-  else if(sort==="name-asc") arr = [...arr].sort((a,b)=>a.name.localeCompare(b.name,"th"));
-  // default: newest = records order (already unshifted)
+  if(sort==="oldest") arr=[...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
+  else if(sort==="score-desc") arr=[...arr].sort((a,b)=>b.totalScore-a.totalScore);
+  else if(sort==="score-asc") arr=[...arr].sort((a,b)=>a.totalScore-b.totalScore);
+  else if(sort==="name-asc") arr=[...arr].sort((a,b)=>a.name.localeCompare(b.name,"th"));
   return arr;
 }
 
@@ -622,14 +703,11 @@ function renderCRM() {
       ${records.length===0?'<div class="empty-sub">เริ่มประเมินผู้ลงทุนได้เลย</div>':""}</div>`;
     return;
   }
-
   const impIcon = {positive:"👍",neutral:"👌",negative:"👎"};
-
   list.innerHTML = filtered.map(r => {
     const ri = records.indexOf(r);
     const chips = r.scores.map((s,si) => `<div class="score-chip ${s>=4?"hi":s===3?"mid":"lo"}" title="${CRITERIA[si]}: ${DESCS[si][s-1]}">${s}</div>`).join("");
-    const hasNotes = r.strength || r.weakness || r.notes;
-    const notePreview = r.strength ? "💪 "+r.strength : (r.notes ? "📝 "+r.notes : "");
+    const notePreview = r.strength?"💪 "+r.strength:(r.notes?"📝 "+r.notes:"");
     return `
     <div class="record-card">
       <div class="record-top">
@@ -662,19 +740,12 @@ function renderCRM() {
   }).join("");
 }
 
-function deleteRecord(idx) {
-  if(!confirm("ต้องการลบข้อมูลของ "+records[idx].name+"?")) return;
-  records.splice(idx,1);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  renderCRM();
-}
-
 function openModal(idx) {
   const r = records[idx];
   currentModal = r;
   const impLabel = {positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
   document.getElementById("m-name").textContent = r.name;
-  document.getElementById("m-meta").textContent = [r.phone, r.province, r.occupation].filter(Boolean).join(" · ");
+  document.getElementById("m-meta").textContent = [r.phone,r.province,r.occupation].filter(Boolean).join(" · ");
   document.getElementById("m-tags").innerHTML =
     `<span class="tag">${r.brand}</span>`+
     (r.interviewer?`<span class="tag">สัมภาษณ์โดย: ${r.interviewer}</span>`:"")+
@@ -689,136 +760,53 @@ function openModal(idx) {
       <span class="modal-clabel">${c}</span>
       <div class="modal-dots">${[1,2,3,4,5].map(v=>`<div class="modal-dot ${r.scores[i]===v?"active":""}" title="${DESCS[i][v-1]}">${v}</div>`).join("")}</div>
     </div>`).join("");
-  const noteParts = [];
+  const noteParts=[];
   if(r.strength) noteParts.push(`<div style="margin-bottom:8px"><strong>💪 จุดเด่น:</strong><br>${r.strength}</div>`);
   if(r.weakness) noteParts.push(`<div style="margin-bottom:8px"><strong>⚠️ จุดที่ควรพัฒนา:</strong><br>${r.weakness}</div>`);
   if(r.notes) noteParts.push(`<div><strong>📝 หมายเหตุ:</strong><br>${r.notes}</div>`);
-  const notesBox = document.getElementById("m-notes-box");
-  const notesContent = document.getElementById("m-notes-content");
-  if(noteParts.length>0) {
-    notesContent.innerHTML = noteParts.join("");
-    notesBox.style.display = "block";
-  } else {
-    notesBox.style.display = "none";
-  }
-  document.getElementById("modal").style.display = "flex";
+  const notesBox=document.getElementById("m-notes-box");
+  if(noteParts.length>0) { document.getElementById("m-notes-content").innerHTML=noteParts.join(""); notesBox.style.display="block"; }
+  else notesBox.style.display="none";
+  document.getElementById("modal").style.display="flex";
 }
 
-function closeModal(e) {
-  if(e.target===document.getElementById("modal")) document.getElementById("modal").style.display="none";
-}
+function closeModal(e) { if(e.target===document.getElementById("modal")) document.getElementById("modal").style.display="none"; }
 
 function exportCSV() {
   const filtered = getFiltered();
-  const headers = ["ชื่อ-นามสกุล","เบอร์โทร","อาชีพ","จังหวัด","แบรนด์",
-    ...CRITERIA.map((_,i)=>`ข้อ ${i+1}`),"คะแนนรวม","ผลการพิจารณา",
-    "ความประทับใจ","ผู้สัมภาษณ์","จุดเด่น","จุดที่ควรพัฒนา","หมายเหตุ","วันที่"];
-  const impTxt = {positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"};
-  const rows = filtered.map(r => [
-    r.name,r.phone,r.occupation||"",r.province||"",r.brand,
-    ...r.scores,r.totalScore,r.result,
-    r.impression?impTxt[r.impression]:"",
-    r.interviewer||"",r.strength||"",r.weakness||"",r.notes||"",r.submittedAt
-  ]);
-  const csv = [headers,...rows].map(row => row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href=url; a.download="franchise_assessment_"+Date.now()+".csv"; a.click();
+  const headers = ["ชื่อ-นามสกุล","เบอร์โทร","อาชีพ","จังหวัด","แบรนด์",...CRITERIA.map((_,i)=>`ข้อ ${i+1}`),"คะแนนรวม","ผลการพิจารณา","ความประทับใจ","ผู้สัมภาษณ์","จุดเด่น","จุดที่ควรพัฒนา","หมายเหตุ","วันที่"];
+  const impTxt={positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"};
+  const rows=filtered.map(r=>[r.name,r.phone,r.occupation||"",r.province||"",r.brand,...r.scores,r.totalScore,r.result,r.impression?impTxt[r.impression]:"",r.interviewer||"",r.strength||"",r.weakness||"",r.notes||"",r.submittedAt]);
+  const csv=[headers,...rows].map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="franchise_assessment_"+Date.now()+".csv";a.click();
   URL.revokeObjectURL(url);
 }
 
 function exportPDF(r) {
   document.getElementById("modal").style.display="none";
-  const w = window.open("","_blank");
-  if(!w) { alert("กรุณาอนุญาต popup เพื่อ export PDF"); return; }
-  const scoreRows = CRITERIA.map((c,i) => `
-    <tr>
-      <td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#374151;vertical-align:top">${i+1}</td>
-      <td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;vertical-align:top">
-        <div style="font-weight:700;margin-bottom:3px">${c}</div>
-        <div style="font-size:11px;color:#6b7280">${DESCS[i][r.scores[i]-1]}</div>
-      </td>
-      ${[1,2,3,4,5].map(v=>`<td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-size:13px;font-weight:700;vertical-align:top;${r.scores[i]===v?"background:#065f46;color:white;":"color:#d1d5db;"}">${r.scores[i]===v?"●":"○"}</td>`).join("")}
-    </tr>`).join("");
-  const resColor = r.result==="ผ่าน"?"#065f46":r.result==="รอพิจารณา"?"#92400e":"#991b1b";
-  const impLabel = {positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
-  const notesSection = (r.strength||r.weakness||r.notes) ? `
-    <div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
-      <div style="background:#f9fafb;padding:10px 14px;font-size:12px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div>
-      <div style="padding:14px;display:grid;gap:10px">
-        ${r.strength?`<div><div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:3px">💪 จุดเด่น</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.strength}</div></div>`:""}
-        ${r.weakness?`<div><div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:3px">⚠️ จุดที่ควรพัฒนา</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.weakness}</div></div>`:""}
-        ${r.notes?`<div><div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:3px">📝 หมายเหตุเพิ่มเติม</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.notes}</div></div>`:""}
-      </div>
-    </div>` : "";
-  w.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="UTF-8"><title>แบบประเมิน - ${r.name}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-      body{font-family:'Sarabun',sans-serif;margin:0;padding:32px;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      .hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #065f46;padding-bottom:14px;margin-bottom:18px}
-      .brand-tag{background:#065f46;color:#fff;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700;display:inline-block;margin-top:7px}
-      .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:18px}
-      .info-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:8px 12px}
-      .info-lbl{font-size:10px;color:#9ca3af;margin-bottom:2px}
-      .info-val{font-size:13px;font-weight:700}
-      table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}
-      th{background:#065f46;color:#fff;padding:9px 10px;text-align:left;font-size:12px;font-weight:700}
-      .summary{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:2px solid #065f46;border-radius:10px;padding:14px 22px;margin-bottom:12px}
-      .score-big{font-size:44px;font-weight:800;color:#065f46;line-height:1}
-      .result-chip{display:inline-block;padding:7px 22px;border-radius:100px;font-size:18px;font-weight:800;color:#fff;background:${resColor}}
-      .footer{font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;margin-top:6px}
-      @media print{body{padding:18px}}
-    </style>
-  </head><body>
-    <div class="hdr">
-      <div>
-        <div style="font-size:20px;font-weight:800;color:#065f46">แบบประเมินผู้ลงทุนแฟรนไชส์</div>
-        <div style="font-size:12px;color:#9ca3af;margin-top:2px">วันที่ประเมิน: ${r.submittedAt}${r.interviewer?" &nbsp;|&nbsp; ผู้สัมภาษณ์: "+r.interviewer:""}</div>
-        <div class="brand-tag">${r.brand}</div>
-      </div>
-      <div style="text-align:right;font-size:10px;color:#d1d5db">CONFIDENTIAL</div>
-    </div>
-    <div class="info-grid">
-      <div class="info-box"><div class="info-lbl">ชื่อ-นามสกุล</div><div class="info-val">${r.name}</div></div>
-      <div class="info-box"><div class="info-lbl">เบอร์โทรศัพท์</div><div class="info-val">${r.phone}</div></div>
-      <div class="info-box"><div class="info-lbl">อาชีพปัจจุบัน</div><div class="info-val">${r.occupation||"-"}</div></div>
-      <div class="info-box"><div class="info-lbl">จังหวัดที่ต้องการเปิดสาขา</div><div class="info-val">${r.province||"-"}</div></div>
-    </div>
-    <table>
-      <thead><tr>
-        <th style="width:30px">ข้อ</th><th>หัวข้อประเมิน / เกณฑ์ที่ได้รับ</th>
-        <th style="width:34px;text-align:center">1</th><th style="width:34px;text-align:center">2</th>
-        <th style="width:34px;text-align:center">3</th><th style="width:34px;text-align:center">4</th>
-        <th style="width:34px;text-align:center">5</th>
-      </tr></thead>
-      <tbody>${scoreRows}</tbody>
-    </table>
-    <div class="summary">
-      <div>
-        <div style="font-size:12px;color:#374151;margin-bottom:3px">คะแนนรวม</div>
-        <div><span class="score-big">${r.totalScore}</span><span style="font-size:20px;color:#9ca3af"> / 50</span></div>
-        <div style="font-size:12px;color:#6b7280;margin-top:3px">${getScoreLabel(r.totalScore)}${r.impression?" &nbsp;·&nbsp; ความประทับใจ: "+{positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"}[r.impression]:""}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:12px;color:#374151;margin-bottom:7px">ผลการพิจารณา</div>
-        <div class="result-chip">${r.result}</div>
-      </div>
-    </div>
-    ${notesSection}
-    <div class="footer" style="margin-top:${notesSection?"10":"0"}px">
-      เกณฑ์การพิจารณา: 45-50 คะแนน = เหมาะสมมาก &nbsp;|&nbsp; 40-44 คะแนน = เหมาะสม &nbsp;|&nbsp; 35-39 คะแนน = ผ่านเกณฑ์ &nbsp;|&nbsp; ต่ำกว่า 35 คะแนน = พิจารณาเพิ่มเติม
-    </div>
-    <script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script>
-  </body></html>`);
+  const w=window.open("","_blank");
+  if(!w){alert("กรุณาอนุญาต popup เพื่อ export PDF");return;}
+  const scoreRows=CRITERIA.map((c,i)=>`<tr><td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#374151;vertical-align:top">${i+1}</td><td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;vertical-align:top"><div style="font-weight:700;margin-bottom:3px">${c}</div><div style="font-size:11px;color:#6b7280">${DESCS[i][r.scores[i]-1]}</div></td>${[1,2,3,4,5].map(v=>`<td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-size:13px;font-weight:700;vertical-align:top;${r.scores[i]===v?"background:#065f46;color:white;":"color:#d1d5db;"}">${r.scores[i]===v?"●":"○"}</td>`).join("")}</tr>`).join("");
+  const resColor=r.result==="ผ่าน"?"#065f46":r.result==="รอพิจารณา"?"#92400e":"#991b1b";
+  const impLabel={positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
+  const notesSection=(r.strength||r.weakness||r.notes)?`<div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden"><div style="background:#f9fafb;padding:10px 14px;font-size:12px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div><div style="padding:14px;display:grid;gap:10px">${r.strength?`<div><div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:3px">💪 จุดเด่น</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.strength}</div></div>`:""} ${r.weakness?`<div><div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:3px">⚠️ จุดที่ควรพัฒนา</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.weakness}</div></div>`:""} ${r.notes?`<div><div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:3px">📝 หมายเหตุเพิ่มเติม</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.notes}</div></div>`:""}</div></div>`:"";
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>แบบประเมิน - ${r.name}</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{font-family:'Sarabun',sans-serif;margin:0;padding:32px;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #065f46;padding-bottom:14px;margin-bottom:18px}.brand-tag{background:#065f46;color:#fff;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700;display:inline-block;margin-top:7px}.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:18px}.info-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:8px 12px}.info-lbl{font-size:10px;color:#9ca3af;margin-bottom:2px}.info-val{font-size:13px;font-weight:700}table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}th{background:#065f46;color:#fff;padding:9px 10px;text-align:left;font-size:12px;font-weight:700}.summary{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:2px solid #065f46;border-radius:10px;padding:14px 22px;margin-bottom:12px}.score-big{font-size:44px;font-weight:800;color:#065f46;line-height:1}.result-chip{display:inline-block;padding:7px 22px;border-radius:100px;font-size:18px;font-weight:800;color:#fff;background:${resColor}}.footer{font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;margin-top:6px}@media print{body{padding:18px}}</style></head><body><div class="hdr"><div><div style="font-size:20px;font-weight:800;color:#065f46">แบบประเมินผู้ลงทุนแฟรนไชส์</div><div style="font-size:12px;color:#9ca3af;margin-top:2px">วันที่ประเมิน: ${r.submittedAt}${r.interviewer?" | ผู้สัมภาษณ์: "+r.interviewer:""}</div><div class="brand-tag">${r.brand}</div></div><div style="text-align:right;font-size:10px;color:#d1d5db">CONFIDENTIAL</div></div><div class="info-grid"><div class="info-box"><div class="info-lbl">ชื่อ-นามสกุล</div><div class="info-val">${r.name}</div></div><div class="info-box"><div class="info-lbl">เบอร์โทรศัพท์</div><div class="info-val">${r.phone}</div></div><div class="info-box"><div class="info-lbl">อาชีพปัจจุบัน</div><div class="info-val">${r.occupation||"-"}</div></div><div class="info-box"><div class="info-lbl">จังหวัดที่ต้องการเปิดสาขา</div><div class="info-val">${r.province||"-"}</div></div></div><table><thead><tr><th style="width:30px">ข้อ</th><th>หัวข้อประเมิน / เกณฑ์ที่ได้รับ</th><th style="width:34px;text-align:center">1</th><th style="width:34px;text-align:center">2</th><th style="width:34px;text-align:center">3</th><th style="width:34px;text-align:center">4</th><th style="width:34px;text-align:center">5</th></tr></thead><tbody>${scoreRows}</tbody></table><div class="summary"><div><div style="font-size:12px;color:#374151;margin-bottom:3px">คะแนนรวม</div><div><span class="score-big">${r.totalScore}</span><span style="font-size:20px;color:#9ca3af"> / 50</span></div><div style="font-size:12px;color:#6b7280;margin-top:3px">${getScoreLabel(r.totalScore)}${r.impression?" · ความประทับใจ: "+{positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"}[r.impression]:""}</div></div><div style="text-align:right"><div style="font-size:12px;color:#374151;margin-bottom:7px">ผลการพิจารณา</div><div class="result-chip">${r.result}</div></div></div>${notesSection}<div class="footer">เกณฑ์การพิจารณา: 45-50 คะแนน = เหมาะสมมาก | 40-44 คะแนน = เหมาะสม | 35-39 คะแนน = ผ่านเกณฑ์ | ต่ำกว่า 35 คะแนน = พิจารณาเพิ่มเติม</div><script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script></body></html>`);
   w.document.close();
 }
 
-// Boot
+// ─── BOOT ─────────────────────────────────────────────────────────
 initCriteria();
-updateBadge();
-// Highlight "all" stat card by default
+updateLiveScore();
 document.getElementById("sc-all").classList.add("active-filter");
+
+// Create table if not exists, then load & subscribe
+(async () => {
+  // Try to create table via RPC or just load (table must exist)
+  await loadRecords();
+  subscribeRealtime();
+})();
 </script>
 </body>
 </html>

@@ -1,812 +1,966 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แบบประเมินผู้ลงทุนแฟรนไชส์</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>แบบประเมินผู้ลงทุนแฟรนไชส์ – Jian Cha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --green:#065f46;--green-light:#d1fae5;--green-mid:#059669;
-  --amber:#92400e;--amber-light:#fef3c7;
-  --red:#991b1b;--red-light:#fee2e2;
-  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
-  --gray-300:#d1d5db;--gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-900:#111827;
+/* ──────────────────────────────────────────
+   TOKENS
+────────────────────────────────────────── */
+:root {
+  --teal:        #0a6b6e;
+  --teal-mid:    #0d8a8e;
+  --teal-light:  #e6f4f4;
+  --amber:       #d97706;
+  --amber-light: #fef3c7;
+  --bg:          #f1f8f8;
+  --card:        #ffffff;
+  --border:      #d1e4e4;
+  --text:        #1a2b2b;
+  --muted:       #5f7f7f;
+  --pass:        #166534;
+  --pass-bg:     #dcfce7;
+  --pend:        #92400e;
+  --pend-bg:     #fef3c7;
+  --fail:        #991b1b;
+  --fail-bg:     #fee2e2;
+  --radius:      12px;
+  --shadow:      0 2px 12px rgba(10,107,110,.08);
 }
-body{font-family:'Sarabun',sans-serif;background:#f8fafc;color:var(--gray-900);min-height:100vh}
 
-/* SYNC INDICATOR */
-.sync-bar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:999;transition:background .3s}
-.sync-bar.syncing{background:linear-gradient(90deg,var(--green),var(--green-mid),var(--green));background-size:200%;animation:syncpulse 1s linear infinite}
-@keyframes syncpulse{0%{background-position:0%}100%{background-position:200%}}
-.sync-status{position:fixed;bottom:16px;right:16px;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;z-index:999;box-shadow:0 2px 10px rgba(0,0,0,.12);transition:all .3s;opacity:0;pointer-events:none}
-.sync-status.show{opacity:1}
-.sync-status.ok{background:#ecfdf5;color:var(--green);border:1px solid #a7f3d0}
-.sync-status.err{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
-.sync-status.loading{background:#fff;color:var(--gray-600);border:1px solid var(--gray-200)}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+*{box-sizing:border-box;margin:0;padding:0}
 
-/* NAV */
-nav{background:#fff;border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
-.nav-inner{max-width:900px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;padding:12px 0}
-.logo-icon{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-title{font-weight:700;font-size:14px;line-height:1.2}
-.logo-sub{font-size:11px;color:var(--gray-400)}
-.nav-tabs{display:flex;background:var(--gray-100);border-radius:10px;padding:4px;gap:4px}
-.nav-tab{padding:6px 16px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;color:var(--gray-500);transition:all .15s;display:flex;align-items:center;gap:6px}
-.nav-tab.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.badge{background:var(--green);color:#fff;font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700}
+body{
+  font-family:'IBM Plex Sans Thai',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:15px;
+  line-height:1.6;
+}
 
-/* LAYOUT */
-.page{max-width:700px;margin:0 auto;padding:32px 20px}
-.page-wide{max-width:1040px;margin:0 auto;padding:32px 20px}
+/* ──────────────────────────────────────────
+   LOGIN
+────────────────────────────────────────── */
+#loginScreen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:16px;
+  background:linear-gradient(145deg,#062c2e 0%,#0a6b6e 60%,#d97706 140%);
+}
 
-/* CARDS */
-.card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:24px;margin-bottom:16px}
-.card-title{font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;margin-bottom:18px}
-.step-num{width:24px;height:24px;background:var(--green);border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.login-card{
+  background:#fff;border-radius:20px;
+  padding:44px 36px;width:100%;max-width:400px;
+  box-shadow:0 32px 64px rgba(0,0,0,.28);
+}
 
-/* FORM */
-.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.field-full{grid-column:1/-1}
-label{display:block;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:5px}
-input[type=text],input[type=tel],textarea{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 13px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--gray-900);outline:none;transition:border-color .15s}
-input:focus,textarea:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
-textarea{resize:vertical;min-height:90px;line-height:1.6}
+.login-logo{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:6px;
+}
+.login-logo-icon{font-size:36px;line-height:1}
+.login-logo-text{font-size:20px;font-weight:700;color:var(--teal);letter-spacing:-.5px}
 
-/* BRAND BUTTONS */
-.brand-btns{display:flex;gap:12px}
-.brand-btn{flex:1;padding:14px;border-radius:12px;border:2px solid var(--gray-200);background:#fff;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;color:var(--gray-500);transition:all .15s;text-align:center}
-.brand-btn.selected{border-color:var(--green);background:#ecfdf5;color:var(--green)}
-.brand-btn:hover:not(.selected){border-color:var(--gray-400)}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
 
-/* SCORE ROWS */
-.score-item{background:var(--gray-50);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:background .15s;border:1.5px solid transparent}
-.score-item.scored{background:#ecfdf5;border-color:#a7f3d0}
-.score-row{display:flex;align-items:flex-start;gap:10px}
-.score-num{font-size:12px;font-weight:700;color:var(--gray-400);min-width:18px;padding-top:2px}
-.score-label{font-size:13px;font-weight:700;color:var(--gray-900);flex:1;line-height:1.4;margin-bottom:10px}
-.score-btns{display:flex;gap:6px;flex-wrap:wrap}
-.score-btn{width:38px;height:38px;border-radius:9px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:var(--gray-500);transition:all .15s;display:flex;align-items:center;justify-content:center;position:relative}
-.score-btn:hover{border-color:var(--green-mid);color:var(--green)}
-.score-btn.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px rgba(6,95,70,.3)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.field input{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font:inherit;font-size:15px;outline:none;
+  transition:border-color .15s;
+}
+.field input:focus{border-color:var(--teal)}
 
-/* SCORE DESCRIPTION */
-.score-descs{margin-top:10px;display:none;flex-direction:column;gap:3px}
-.score-item.scored .score-descs{display:flex}
-.score-desc-row{display:flex;align-items:flex-start;gap:6px;font-size:11.5px;line-height:1.5;padding:4px 6px;border-radius:6px;color:var(--gray-500)}
-.score-desc-row.highlight{background:#fff;color:var(--green);font-weight:700;border:1px solid #a7f3d0}
-.score-desc-dot{width:18px;height:18px;border-radius:5px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.score-desc-dot.active{background:var(--green);color:#fff}
-.score-desc-dot.inactive{background:var(--gray-200);color:var(--gray-400)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 20px;border:none;border-radius:10px;
+  font:inherit;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-teal:hover{background:var(--teal-mid)}
+.btn-outline{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal)}
+.btn-red{background:#dc2626;color:#fff}
+.btn-red:hover{background:#b91c1c}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px}
+.btn-full{width:100%}
 
-/* SCORE PREVIEW */
-.score-preview{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#fff;border:1px solid var(--gray-200);border-radius:14px;margin-bottom:20px}
-.score-big{font-size:38px;font-weight:800;color:var(--gray-900)}
-.score-denom{font-size:18px;color:var(--gray-400);font-weight:400}
-.score-bar-wrap{margin-top:12px;height:6px;background:var(--gray-100);border-radius:100px;overflow:hidden}
-.score-bar{height:100%;border-radius:100px;transition:width .5s ease,background .3s}
-.pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;border:1px solid transparent}
-.pill-pass{background:var(--green-light);color:var(--green);border-color:#a7f3d0}
-.pill-wait{background:var(--amber-light);color:var(--amber);border-color:#fcd34d}
-.pill-fail{background:var(--red-light);color:var(--red);border-color:#fca5a5}
-.pill-gray{background:var(--gray-100);color:var(--gray-400);border-color:var(--gray-200)}
+.err{color:#dc2626;font-size:13px;margin-top:10px;text-align:center}
 
-/* NOTES SECTION */
-.notes-section{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:24px;margin-bottom:16px}
-.notes-title{font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.notes-sub{font-size:12px;color:var(--gray-400);margin-bottom:14px;margin-left:32px}
-.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.notes-full{grid-column:1/-1}
-.radio-group{display:flex;gap:8px;flex-wrap:wrap}
-.radio-opt{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1.5px solid var(--gray-200);cursor:pointer;font-size:13px;font-weight:600;color:var(--gray-600);transition:all .15s;background:#fff}
-.radio-opt input{display:none}
-.radio-opt.selected-pos{border-color:#16a34a;background:#ecfdf5;color:#15803d}
-.radio-opt.selected-neg{border-color:#dc2626;background:#fef2f2;color:#dc2626}
-.radio-opt.selected-neu{border-color:#d97706;background:#fffbeb;color:#b45309}
+/* ──────────────────────────────────────────
+   APP
+────────────────────────────────────────── */
+#app{display:none}
 
-/* SUBMIT BTN */
-.btn-submit{width:100%;padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s}
-.btn-submit:hover{opacity:.92}
-.btn-submit:active{transform:scale(.99)}
-.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+/* ── header ── */
+.header{
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:90;
+  box-shadow:var(--shadow);
+}
+.header-brand{display:flex;align-items:center;gap:10px}
+.header-icon{font-size:22px;line-height:1}
+.header-name{font-size:15px;font-weight:700;color:var(--teal)}
+.header-user{font-size:12px;color:var(--muted)}
 
-/* SUCCESS */
-.success-wrap{max-width:480px;margin:0 auto;padding:64px 20px;text-align:center}
-.success-icon{width:80px;height:80px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
-.success-title{font-size:24px;font-weight:800;margin-bottom:8px}
-.success-sub{color:var(--gray-500);font-size:14px;margin-bottom:6px}
-.success-score{font-size:38px;font-weight:800;line-height:1;margin:12px 0 4px}
-.success-actions{display:flex;gap:12px;margin-top:28px}
-.btn-outline{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--gray-200);background:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--gray-700);cursor:pointer;transition:background .15s}
-.btn-outline:hover{background:var(--gray-50)}
-.btn-green{flex:1;padding:12px;border-radius:12px;border:none;background:var(--green);color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
-.btn-green:hover{opacity:.9}
+/* ── tabs ── */
+.tabs{
+  display:flex;background:#fff;
+  border-bottom:2px solid var(--border);
+  padding:0 16px;
+}
+.tab{
+  padding:14px 20px;background:none;border:none;
+  font:inherit;font-size:15px;font-weight:500;
+  color:var(--muted);cursor:pointer;
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+  transition:all .15s;
+}
+.tab.on{color:var(--teal);font-weight:700;border-bottom-color:var(--teal)}
+.tab-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 6px;
+  background:var(--teal-light);color:var(--teal);
+  border-radius:20px;font-size:12px;font-weight:700;
+  margin-left:6px;
+}
 
-/* CRM */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat-card{background:#fff;border:1px solid var(--gray-200);border-radius:12px;padding:16px 18px;cursor:pointer;transition:border-color .15s}
-.stat-card:hover{border-color:var(--gray-400)}
-.stat-card.active-filter{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
-.stat-label{font-size:12px;color:var(--gray-500);margin-bottom:4px}
-.stat-val{font-size:32px;font-weight:800}
-.stat-val.green{color:var(--green)}
-.stat-val.amber{color:#d97706}
-.stat-val.red{color:var(--red)}
+/* ── content ── */
+.content{max-width:680px;margin:0 auto;padding:24px 16px 60px}
 
-.filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.filter-search{flex:1;min-width:160px;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 13px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none}
-.filter-search:focus{border-color:var(--green-mid)}
-select{border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;font-family:'Sarabun',sans-serif;font-size:13px;background:#fff;outline:none;cursor:pointer}
+/* ── section card ── */
+.card{
+  background:#fff;border-radius:var(--radius);
+  border:1px solid var(--border);
+  padding:22px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card-head{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+}
+.step-num{
+  width:28px;height:28px;
+  background:var(--teal);color:#fff;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;
+}
+.card-title{font-size:16px;font-weight:700}
 
-.crm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.btn-export{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1.5px solid var(--gray-200);background:#fff;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;color:var(--gray-700);cursor:pointer;transition:background .15s}
-.btn-export:hover{background:var(--gray-50)}
+/* ── form fields ── */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.field-row{grid-template-columns:1fr}}
 
-.record-card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .15s}
-.record-card:hover{border-color:#d1d5db}
-.record-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.record-avatar{width:40px;height:40px;background:#ecfdf5;border-radius:50%;color:var(--green);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.record-info{margin-left:12px;flex:1;min-width:0}
-.record-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.record-meta{font-size:12px;color:var(--gray-400);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.record-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.record-score{font-size:18px;font-weight:800;color:var(--gray-900)}
-.record-denom{font-size:12px;color:var(--gray-400);font-weight:400}
-.record-actions{display:flex;gap:4px}
-.icon-btn{width:32px;height:32px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-400);transition:all .15s}
-.icon-btn:hover{background:var(--gray-100);color:var(--gray-700)}
-.icon-btn.red:hover{background:var(--red-light);color:var(--red)}
+.field textarea{
+  width:100%;padding:11px 14px;
+  border:1.5px solid var(--border);border-radius:10px;
+  font:inherit;font-size:14px;outline:none;resize:vertical;
+  transition:border-color .15s;
+}
+.field textarea:focus{border-color:var(--teal)}
 
-.scores-mini{display:flex;gap:5px;margin-top:12px;margin-left:52px;flex-wrap:wrap}
-.score-chip{width:28px;height:28px;border-radius:7px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.score-chip.hi{background:#d1fae5;color:#065f46}
-.score-chip.mid{background:#fef3c7;color:#92400e}
-.score-chip.lo{background:#fee2e2;color:#991b1b}
-.record-date{font-size:11px;color:var(--gray-300);margin-top:6px;margin-left:52px}
-.record-note-preview{font-size:12px;color:var(--gray-500);margin-top:4px;margin-left:52px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── brand buttons ── */
+.brand-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.brand-btn{
+  padding:18px;border:2px solid var(--border);border-radius:10px;
+  background:#fff;font:inherit;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;text-align:center;
+  display:flex;flex-direction:column;gap:4px;align-items:center;
+}
+.brand-btn:hover{border-color:var(--teal-mid)}
+.brand-btn.on{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
 
-.empty-state{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:64px;text-align:center;color:var(--gray-400)}
-.empty-icon{font-size:48px;margin-bottom:10px}
-.empty-msg{font-size:15px;font-weight:600}
-.empty-sub{font-size:13px;margin-top:4px}
+/* ── criteria scoring ── */
+.hint{font-size:13px;color:var(--muted);margin-bottom:18px}
+.criterion{
+  padding:16px 0;border-bottom:1px solid var(--border);
+}
+.criterion:last-child{border-bottom:none;padding-bottom:0}
+.criterion-name{font-weight:600;margin-bottom:10px}
+.star-row{display:flex;gap:8px}
+.star-btn{
+  width:42px;height:42px;border:2px solid var(--border);border-radius:8px;
+  background:#fff;font-size:16px;font-weight:700;color:var(--muted);
+  cursor:pointer;transition:all .15s;
+}
+.star-btn:hover{border-color:var(--teal);color:var(--teal)}
+.star-btn.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.star-desc{
+  margin-top:8px;font-size:13px;color:var(--teal);
+  background:var(--teal-light);padding:7px 12px;border-radius:7px;
+  display:none;
+}
+.star-desc.show{display:block}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px}
-.modal{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
-.modal-header{padding:22px 24px;border-bottom:1px solid var(--gray-100)}
-.modal-name{font-size:18px;font-weight:800}
-.modal-meta{font-size:13px;color:var(--gray-400);margin-top:3px}
-.modal-tags{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
-.tag{padding:4px 10px;border-radius:100px;font-size:12px;font-weight:600;background:var(--gray-100);color:var(--gray-600)}
-.modal-body{padding:22px 24px}
-.modal-score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.modal-criteria{display:flex;flex-direction:column;gap:8px}
-.modal-criterion{display:flex;align-items:center;gap:8px}
-.modal-cnum{font-size:11px;color:var(--gray-400);width:16px;flex-shrink:0}
-.modal-clabel{font-size:12px;flex:1;color:var(--gray-700)}
-.modal-dots{display:flex;gap:3px}
-.modal-dot{width:22px;height:22px;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--gray-100);color:var(--gray-300)}
-.modal-dot.active{background:var(--green);color:#fff}
-.modal-note-box{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:12px 14px;margin-top:16px}
-.modal-note-label{font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.modal-note-text{font-size:13px;color:var(--gray-700);line-height:1.6}
-.modal-footer{padding:0 24px 22px;display:flex;gap:10px}
+/* ── impression ── */
+.impression-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px}
+.imp-btn{
+  padding:12px 8px;border:2px solid var(--border);border-radius:9px;
+  background:#fff;font:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;text-align:center;transition:all .15s;
+}
+.imp-btn:hover{border-color:var(--teal)}
+.imp-btn.on{border-color:var(--teal);background:var(--teal-light);color:var(--teal)}
 
-/* PAGE HEADER */
-.page-header{margin-bottom:24px}
-.page-title{font-size:24px;font-weight:800}
-.page-sub{font-size:14px;color:var(--gray-500);margin-top:4px}
+/* ── live score ring ── */
+.score-ring-wrap{
+  background:linear-gradient(135deg,#062c2e,var(--teal));
+  border-radius:var(--radius);padding:28px 20px;
+  text-align:center;margin-bottom:14px;color:#fff;
+}
+.ring-svg{display:block;margin:0 auto 12px}
+.ring-label{font-size:13px;opacity:.75;margin-bottom:2px}
+.ring-score{font-size:40px;font-weight:800;line-height:1}
+.ring-result{
+  display:inline-block;margin-top:10px;
+  padding:5px 16px;border-radius:20px;font-size:13px;font-weight:700;
+}
+.res-pass  {background:rgba(34,197,94,.25);color:#86efac}
+.res-pend  {background:rgba(234,179,8,.25);color:#fde68a}
+.res-fail  {background:rgba(239,68,68,.25);color:#fca5a5}
+.res-none  {background:rgba(255,255,255,.15);color:rgba(255,255,255,.7)}
+
+/* ── success screen ── */
+#successPanel{display:none;text-align:center;padding:48px 16px}
+.success-icon{font-size:64px;margin-bottom:16px}
+.success-title{font-size:24px;font-weight:800;margin-bottom:6px}
+.success-sub{color:var(--muted);margin-bottom:28px}
+.success-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ──────────────────────────────────────────
+   CRM
+────────────────────────────────────────── */
+.crm-title{font-size:18px;font-weight:800;margin-bottom:16px}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+@media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+.stat{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:14px 12px;text-align:center;
+}
+.stat-n{font-size:26px;font-weight:800}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px}
+.stat-total .stat-n{color:var(--teal)}
+.stat-pass .stat-n{color:#16a34a}
+.stat-pend .stat-n{color:var(--amber)}
+.stat-fail .stat-n{color:#dc2626}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filters select{
+  padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;
+  font:inherit;font-size:13px;background:#fff;cursor:pointer;outline:none;
+}
+.filters select:focus{border-color:var(--teal)}
+
+/* ── record cards ── */
+.rec{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:15px;margin-bottom:10px;
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;
+  box-shadow:var(--shadow);
+}
+.rec-name{font-weight:700;font-size:15px;margin-bottom:4px}
+.rec-meta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{
+  display:inline-block;padding:2px 9px;border-radius:20px;
+  font-size:11px;font-weight:700;
+}
+.b-pass{background:var(--pass-bg);color:var(--pass)}
+.b-pend{background:var(--pend-bg);color:var(--pend)}
+.b-fail{background:var(--fail-bg);color:var(--fail)}
+.b-brand{background:var(--teal-light);color:var(--teal)}
+.rec-score{font-size:15px;font-weight:800;color:var(--teal)}
+.rec-btns{display:flex;gap:5px;flex-shrink:0}
+
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-ico{font-size:44px;margin-bottom:12px}
+
+.loading{text-align:center;padding:48px;color:var(--muted)}
+.spin{
+  display:inline-block;width:22px;height:22px;
+  border:3px solid var(--border);border-top-color:var(--teal);
+  border-radius:50%;animation:rot .5s linear infinite;
+  margin-bottom:10px;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ──────────────────────────────────────────
+   MODALS
+────────────────────────────────────────── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);z-index:200;
+  align-items:center;justify-content:center;padding:16px;
+}
+.overlay.open{display:flex}
+
+.modal{
+  background:#fff;border-radius:16px;
+  width:100%;max-width:500px;max-height:92vh;
+  overflow-y:auto;padding:24px;
+}
+.modal-sm{max-width:360px;text-align:center}
+
+.mhead{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
+}
+.mtitle{font-size:17px;font-weight:700}
+.mclose{
+  background:none;border:none;font-size:22px;
+  cursor:pointer;color:var(--muted);padding:0;line-height:1;
+}
+
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 </style>
 </head>
 <body>
 
-<div class="sync-bar" id="sync-bar"></div>
-<div class="sync-status" id="sync-status"><div class="sync-dot"></div><span id="sync-text">กำลังเชื่อมต่อ...</span></div>
+<!-- ═══════════════════════════════════════
+     LOGIN
+════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="login-logo-icon">🍵</span>
+      <span class="login-logo-text">Jian Cha Franchise</span>
+    </div>
+    <p class="login-sub">Investor Assessment System — เข้าสู่ระบบเพื่อดำเนินการ</p>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-inner">
-    <div class="nav-logo">
-      <div class="logo-icon">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M7 8h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-      </div>
+    <div class="field">
+      <label>อีเมล</label>
+      <input type="email" id="lEmail" placeholder="example@email.com" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn btn-teal btn-full" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="err" id="lErr"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP
+════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- header -->
+  <div class="header">
+    <div class="header-brand">
+      <span class="header-icon">🍵</span>
       <div>
-        <div class="logo-title">Franchise Assessment</div>
-        <div class="logo-sub">Investor Evaluation System</div>
+        <div class="header-name">Franchise Assessment</div>
+        <div class="header-user" id="hUser"></div>
       </div>
     </div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" id="tab-form" onclick="showView('form')">แบบประเมิน</button>
-      <button class="nav-tab" id="tab-crm" onclick="showView('crm')">
-        CRM Database <span class="badge" id="crm-count">0</span>
-      </button>
+    <button class="btn btn-outline btn-sm" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button class="tab on" id="tForm" onclick="showTab('form')">แบบประเมิน</button>
+    <button class="tab" id="tCRM" onclick="showTab('crm')">CRM Database<span class="tab-badge" id="crmBadge" style="display:none"></span></button>
+  </div>
+
+  <!-- ─────────────── FORM TAB ─────────────── -->
+  <div id="tabForm" class="content">
+
+    <!-- Success -->
+    <div id="successPanel">
+      <div class="success-icon">✅</div>
+      <div class="success-title">บันทึกสำเร็จ!</div>
+      <p class="success-sub" id="successMsg"></p>
+      <div class="success-btns">
+        <button class="btn btn-teal" onclick="resetForm()">+ ประเมินคนใหม่</button>
+        <button class="btn btn-outline" onclick="showTab('crm')">ดู CRM Database</button>
+      </div>
     </div>
-  </div>
-</nav>
 
-<!-- FORM VIEW -->
-<div id="view-form" class="page">
-  <div class="page-header">
-    <div class="page-title">แบบประเมินผู้ลงทุนแฟรนไชส์</div>
-    <div class="page-sub">กรอกข้อมูลให้ครบถ้วนและให้คะแนนทุกหัวข้อ 1–5 คะแนน</div>
-  </div>
+    <!-- Form -->
+    <div id="formPanel">
+      <h2 style="font-size:18px;font-weight:800;margin-bottom:4px;">แบบประเมินผู้ลงทุนแฟรนไชส์</h2>
+      <p class="hint" style="margin-bottom:20px;">กรอกข้อมูลให้ครบถ้วนและให้คะแนนทุกหัวข้อ 1–5 คะแนน</p>
 
-  <div class="card">
-    <div class="card-title"><span class="step-num">1</span>ข้อมูลส่วนตัว</div>
-    <div class="field-grid">
-      <div class="field-full"><label>ชื่อ-นามสกุล *</label><input type="text" id="f-name" placeholder="กรอกชื่อ-นามสกุลผู้ประเมิน"></div>
-      <div><label>เบอร์โทรศัพท์ *</label><input type="tel" id="f-phone" placeholder="0XX-XXX-XXXX"></div>
-      <div><label>อาชีพปัจจุบัน</label><input type="text" id="f-occ" placeholder="เช่น พนักงานบริษัท"></div>
-      <div class="field-full"><label>จังหวัดที่ต้องการเปิดสาขา</label><input type="text" id="f-prov" placeholder="เช่น กรุงเทพมหานคร, เชียงใหม่"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="step-num">2</span>แบรนด์ที่สนใจ *</div>
-    <div class="brand-btns">
-      <button class="brand-btn" id="brand-JIANCHA" onclick="selectBrand('JIANCHA')">JIANCHA</button>
-      <button class="brand-btn" id="brand-Polly" onclick="selectBrand('Polly')">Polly</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span class="step-num">3</span>หัวข้อการประเมิน</div>
-    <p style="font-size:12px;color:var(--gray-400);margin-bottom:16px;margin-left:32px">ให้คะแนน 1–5 ในแต่ละหัวข้อ เมื่อเลือกคะแนนแล้ว คำอธิบายเกณฑ์จะปรากฏ</p>
-    <div id="criteria-list"></div>
-  </div>
-
-  <div class="notes-section">
-    <div class="notes-title"><span class="step-num">4</span>หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div>
-    <p class="notes-sub">บันทึกข้อสังเกต จุดเด่น จุดด้อย หรือข้อมูลเพิ่มเติมเกี่ยวกับผู้ถูกประเมิน</p>
-    <div class="notes-grid">
-      <div>
-        <label>ความประทับใจโดยรวม</label>
-        <div class="radio-group" id="impression-group">
-          <label class="radio-opt" id="imp-pos" onclick="setImpression('positive')"><input type="radio" name="impression" value="positive">👍 ดีมาก</label>
-          <label class="radio-opt" id="imp-neu" onclick="setImpression('neutral')"><input type="radio" name="impression" value="neutral">👌 ปานกลาง</label>
-          <label class="radio-opt" id="imp-neg" onclick="setImpression('negative')"><input type="radio" name="impression" value="negative">👎 ต้องปรับปรุง</label>
+      <!-- S1 personal -->
+      <div class="card">
+        <div class="card-head"><span class="step-num">1</span><span class="card-title">ข้อมูลส่วนตัว</span></div>
+        <div class="field-row">
+          <div class="field"><label>ชื่อ-นามสกุล *</label><input type="text" id="fName" placeholder="ชื่อและนามสกุล" /></div>
+          <div class="field"><label>เบอร์โทรศัพท์ *</label><input type="tel" id="fPhone" placeholder="0XX-XXX-XXXX" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>อาชีพปัจจุบัน</label><input type="text" id="fOcc" placeholder="อาชีพ / ธุรกิจปัจจุบัน" /></div>
+          <div class="field"><label>จังหวัดที่ต้องการเปิดสาขา</label><input type="text" id="fProv" placeholder="จังหวัด / ย่าน / ทำเล" /></div>
         </div>
       </div>
-      <div>
-        <label>ชื่อผู้สัมภาษณ์</label>
-        <input type="text" id="f-interviewer" placeholder="ชื่อผู้ทำการสัมภาษณ์">
-      </div>
-      <div class="notes-full">
-        <label>จุดเด่นของผู้ถูกประเมิน</label>
-        <textarea id="f-strength" placeholder="เช่น มีประสบการณ์ธุรกิจมาก่อน, มีแผนธุรกิจที่ชัดเจน, มีเงินทุนพร้อม..."></textarea>
-      </div>
-      <div class="notes-full">
-        <label>จุดที่ควรพัฒนา / ข้อกังวล</label>
-        <textarea id="f-weakness" placeholder="เช่น ยังขาดประสบการณ์การบริหารทีม, คาดหวังผลตอบแทนสูงเกินจริง..."></textarea>
-      </div>
-      <div class="notes-full">
-        <label>ความคิดเห็นและข้อเสนอแนะเพิ่มเติม</label>
-        <textarea id="f-notes" placeholder="บันทึกข้อสังเกตอื่น ๆ หรือข้อมูลที่ได้จากการสัมภาษณ์..."></textarea>
-      </div>
-    </div>
-  </div>
 
-  <div class="score-preview">
-    <div>
-      <div style="font-size:13px;color:var(--gray-500);margin-bottom:2px">คะแนนที่ได้</div>
-      <div><span class="score-big" id="live-score">0</span><span class="score-denom"> / 50</span></div>
-      <div class="score-bar-wrap" style="width:220px;margin-top:8px">
-        <div class="score-bar" id="score-bar" style="width:0%;background:var(--gray-200)"></div>
-      </div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px">ผลเบื้องต้น</div>
-      <div id="live-result"><span class="pill pill-gray">ยังไม่มีคะแนน</span></div>
-    </div>
-  </div>
-
-  <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">บันทึกผลการประเมิน</button>
-</div>
-
-<!-- SUCCESS VIEW -->
-<div id="view-success" style="display:none">
-  <div class="success-wrap">
-    <div class="success-icon">
-      <svg width="40" height="40" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#065f46" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div class="success-title">บันทึกสำเร็จ!</div>
-    <div class="success-sub">ข้อมูลของ <strong id="s-name"></strong> ถูกบันทึกแล้ว</div>
-    <div style="margin:14px 0">
-      <span class="success-score" id="s-score"></span>
-      <span style="font-size:20px;color:var(--gray-400)"> / 50 คะแนน</span>
-    </div>
-    <div id="s-result-badge"></div>
-    <div class="success-actions">
-      <button class="btn-outline" onclick="resetForm()">ประเมินคนใหม่</button>
-      <button class="btn-green" onclick="showView('crm')">ดู CRM Database</button>
-    </div>
-  </div>
-</div>
-
-<!-- CRM VIEW -->
-<div id="view-crm" style="display:none" class="page-wide">
-  <div class="crm-header">
-    <div>
-      <div class="page-title">CRM Database</div>
-      <div class="page-sub" id="crm-total-label">0 รายการทั้งหมด</div>
-    </div>
-    <button class="btn-export" onclick="exportCSV()">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M12 3v13M7 11l5 5 5-5M20 21H4" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Export CSV / Google Sheets
-    </button>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card" id="sc-all" onclick="quickFilter('all')"><div class="stat-label">ทั้งหมด</div><div class="stat-val" id="stat-all">0</div></div>
-    <div class="stat-card" id="sc-pass" onclick="quickFilter('ผ่าน')"><div class="stat-label">✅ ผ่าน</div><div class="stat-val green" id="stat-pass">0</div></div>
-    <div class="stat-card" id="sc-wait" onclick="quickFilter('รอพิจารณา')"><div class="stat-label">⏳ รอพิจารณา</div><div class="stat-val amber" id="stat-wait">0</div></div>
-    <div class="stat-card" id="sc-fail" onclick="quickFilter('ไม่ผ่าน')"><div class="stat-label">❌ ไม่ผ่าน</div><div class="stat-val red" id="stat-fail">0</div></div>
-  </div>
-
-  <div class="filter-row">
-    <input class="filter-search" id="f-search" type="text" placeholder="ค้นหาชื่อ, เบอร์โทร, จังหวัด..." oninput="renderCRM()">
-    <select id="f-brand" onchange="renderCRM()">
-      <option value="all">ทุกแบรนด์</option>
-      <option value="JIANCHA">JIANCHA</option>
-      <option value="Polly">Polly</option>
-    </select>
-    <select id="f-result" onchange="renderCRM()">
-      <option value="all">ทุกผลลัพธ์</option>
-      <option value="ผ่าน">ผ่าน</option>
-      <option value="รอพิจารณา">รอพิจารณา</option>
-      <option value="ไม่ผ่าน">ไม่ผ่าน</option>
-    </select>
-    <select id="f-sort" onchange="renderCRM()">
-      <option value="newest">ใหม่สุดก่อน</option>
-      <option value="oldest">เก่าสุดก่อน</option>
-      <option value="score-desc">คะแนน: สูง → ต่ำ</option>
-      <option value="score-asc">คะแนน: ต่ำ → สูง</option>
-      <option value="name-asc">ชื่อ A → Z</option>
-    </select>
-  </div>
-
-  <div id="crm-list"></div>
-</div>
-
-<!-- DETAIL MODAL -->
-<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-name" id="m-name"></div>
-      <div class="modal-meta" id="m-meta"></div>
-      <div class="modal-tags" id="m-tags"></div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-score-row">
-        <div>
-          <div style="font-size:12px;color:var(--gray-500);margin-bottom:2px">คะแนนรวม</div>
-          <div><span style="font-size:36px;font-weight:800" id="m-score"></span><span style="font-size:16px;color:var(--gray-400)"> / 50</span></div>
+      <!-- S2 brand -->
+      <div class="card">
+        <div class="card-head"><span class="step-num">2</span><span class="card-title">แบรนด์ที่สนใจ *</span></div>
+        <div class="brand-grid">
+          <button class="brand-btn" id="bJiancha" onclick="pickBrand('JIANCHA')"><span style="font-size:26px">🧋</span>JIANCHA</button>
+          <button class="brand-btn" id="bPolly"   onclick="pickBrand('Polly')"><span style="font-size:26px">🍦</span>Polly</button>
         </div>
-        <div id="m-result"></div>
       </div>
-      <div class="modal-criteria" id="m-criteria"></div>
-      <div class="modal-note-box" id="m-notes-box" style="display:none">
-        <div class="modal-note-label">หมายเหตุและความคิดเห็น</div>
-        <div class="modal-note-text" id="m-notes-content"></div>
+
+      <!-- S3 scoring -->
+      <div class="card">
+        <div class="card-head"><span class="step-num">3</span><span class="card-title">หัวข้อการประเมิน</span></div>
+        <p class="hint">ให้คะแนน 1–5 ในแต่ละหัวข้อ เมื่อเลือกคะแนนแล้ว คำอธิบายเกณฑ์จะปรากฏ</p>
+        <div id="criteriaWrap"></div>
+      </div>
+
+      <!-- S4 interviewer -->
+      <div class="card">
+        <div class="card-head"><span class="step-num">4</span><span class="card-title">หมายเหตุและความคิดเห็นผู้สัมภาษณ์</span></div>
+
+        <div class="field">
+          <label>ความประทับใจโดยรวม</label>
+          <div class="impression-row">
+            <button class="imp-btn" id="impPos" onclick="pickImp('positive')">👍 ดีมาก</button>
+            <button class="imp-btn" id="impNeu" onclick="pickImp('neutral')">👌 ปานกลาง</button>
+            <button class="imp-btn" id="impNeg" onclick="pickImp('negative')">👎 ต้องปรับปรุง</button>
+          </div>
+        </div>
+
+        <div class="field"><label>ชื่อผู้สัมภาษณ์</label><input type="text" id="fIter" placeholder="ชื่อผู้สัมภาษณ์" /></div>
+        <div class="field"><label>จุดเด่นของผู้ถูกประเมิน</label><textarea id="fStr" rows="2" placeholder="จุดแข็ง ความโดดเด่น..."></textarea></div>
+        <div class="field"><label>จุดที่ควรพัฒนา / ข้อกังวล</label><textarea id="fWeak" rows="2" placeholder="ข้อกังวล สิ่งที่ต้องระวัง..."></textarea></div>
+        <div class="field"><label>ความคิดเห็นและข้อเสนอแนะเพิ่มเติม</label><textarea id="fNote" rows="3" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+      </div>
+
+      <!-- live score -->
+      <div class="score-ring-wrap">
+        <svg class="ring-svg" id="ringEl" width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/>
+          <circle id="ringArc" cx="60" cy="60" r="50" fill="none" stroke="#d97706"
+            stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="314" stroke-dashoffset="314"
+            transform="rotate(-90 60 60)" style="transition:stroke-dashoffset .3s"/>
+          <text x="60" y="65" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" id="ringTxt">0</text>
+          <text x="60" y="80" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.6)">/50</text>
+        </svg>
+        <div class="ring-result res-none" id="ringResult">ยังไม่มีคะแนน</div>
+      </div>
+
+      <div class="err" id="fErr" style="margin-bottom:12px;text-align:center"></div>
+      <button class="btn btn-teal btn-full" onclick="submitForm()">💾 บันทึกผลการประเมิน</button>
+    </div>
+
+  </div><!-- end tabForm -->
+
+  <!-- ─────────────── CRM TAB ─────────────── -->
+  <div id="tabCRM" class="content" style="display:none">
+    <div class="crm-title">CRM Database</div>
+
+    <!-- stats -->
+    <div class="stats-row">
+      <div class="stat stat-total"><div class="stat-n" id="sAll">0</div><div class="stat-l">ทั้งหมด</div></div>
+      <div class="stat stat-pass"> <div class="stat-n" id="sPass">0</div><div class="stat-l">✅ ผ่าน</div></div>
+      <div class="stat stat-pend"> <div class="stat-n" id="sPend">0</div><div class="stat-l">⏳ รอพิจารณา</div></div>
+      <div class="stat stat-fail"> <div class="stat-n" id="sFail">0</div><div class="stat-l">❌ ไม่ผ่าน</div></div>
+    </div>
+
+    <!-- filters -->
+    <div class="filters">
+      <select id="fBrand" onchange="renderList()">
+        <option value="">ทุกแบรนด์</option>
+        <option value="JIANCHA">JIANCHA</option>
+        <option value="Polly">Polly</option>
+      </select>
+      <select id="fResult" onchange="renderList()">
+        <option value="">ทุกผลลัพธ์</option>
+        <option value="ผ่าน">✅ ผ่าน</option>
+        <option value="รอพิจารณา">⏳ รอพิจารณา</option>
+        <option value="ไม่ผ่าน">❌ ไม่ผ่าน</option>
+      </select>
+      <select id="fSort" onchange="renderList()">
+        <option value="newest">ใหม่สุดก่อน</option>
+        <option value="oldest">เก่าสุดก่อน</option>
+        <option value="score_h">คะแนน: สูง → ต่ำ</option>
+        <option value="score_l">คะแนน: ต่ำ → สูง</option>
+        <option value="name">ชื่อ A → Z</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">📊 Export CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="loadCRM()">🔄</button>
+    </div>
+
+    <div id="listWrap"><div class="loading"><div class="spin"></div><br>กำลังโหลด...</div></div>
+  </div><!-- end tabCRM -->
+
+</div><!-- end #app -->
+
+<!-- ═══════════════════════════════════════
+     MODALS
+════════════════════════════════════════ -->
+
+<!-- Edit modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="mhead">
+      <span class="mtitle">✏️ แก้ไขข้อมูล</span>
+      <button class="mclose" onclick="closeEdit()">✕</button>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>ชื่อ-นามสกุล *</label><input type="text" id="eName"/></div>
+      <div class="field"><label>เบอร์โทรศัพท์ *</label><input type="tel" id="ePhone"/></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>อาชีพ</label><input type="text" id="eOcc"/></div>
+      <div class="field"><label>จังหวัด</label><input type="text" id="eProv"/></div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>แบรนด์</label>
+        <select id="eBrand" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font:inherit">
+          <option value="JIANCHA">JIANCHA</option>
+          <option value="Polly">Polly</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ผลการพิจารณา</label>
+        <select id="eResult" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font:inherit">
+          <option value="ผ่าน">✅ ผ่าน</option>
+          <option value="รอพิจารณา">⏳ รอพิจารณา</option>
+          <option value="ไม่ผ่าน">❌ ไม่ผ่าน</option>
+        </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" style="padding:12px" onclick="document.getElementById('modal').style.display='none'">ปิด</button>
-      <button class="btn-green" style="flex:1;padding:12px" onclick="exportPDF(currentModal)">📄 Export PDF</button>
+    <div class="field"><label>จุดเด่น</label><textarea id="eStr" rows="2"></textarea></div>
+    <div class="field"><label>จุดที่ควรพัฒนา</label><textarea id="eWeak" rows="2"></textarea></div>
+    <div class="field"><label>หมายเหตุ</label><textarea id="eNote" rows="2"></textarea></div>
+    <div class="err" id="eErr" style="text-align:left;margin-bottom:10px"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeEdit()">ยกเลิก</button>
+      <button class="btn btn-teal" onclick="saveEdit()">💾 บันทึก</button>
     </div>
   </div>
 </div>
 
+<!-- Delete modal -->
+<div class="overlay" id="delOverlay">
+  <div class="modal modal-sm">
+    <div style="font-size:44px;margin-bottom:12px">🗑️</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">ยืนยันการลบ?</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">ข้อมูลจะถูกซ่อนออกจากระบบ แต่ยังสามารถกู้คืนได้จาก Supabase Dashboard</p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-outline" onclick="closeDel()">ยกเลิก</button>
+      <button class="btn btn-red" onclick="confirmDel()">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <div class="mhead">
+      <span class="mtitle">📋 รายละเอียด</span>
+      <button class="mclose" onclick="closeDetail()">✕</button>
+    </div>
+    <div id="detailBody"></div>
+    <div class="mfoot">
+      <button class="btn btn-outline btn-sm" onclick="window.print()">📄 Print / PDF</button>
+      <button class="btn btn-outline" onclick="closeDetail()">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCRIPT
+════════════════════════════════════════ -->
 <script>
-// ─── SUPABASE SETUP ───────────────────────────────────────────────
-const SUPABASE_URL = 'https://tncespouzuslapdsgvza.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuY2VzcG91enVzbGFwZHNndnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Nzg4NjcsImV4cCI6MjA5NzE1NDg2N30.usH9zMfaFakEv-H8Ls2UfRdupKQgQBkwEBSyL6vNXLI';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const TABLE = 'franchise_assessments';
+/* ── Config ─────────────────────────────── */
+const SB_URL = 'https://tncespouzuslapdsgvza.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRuY2VzcG91enVzbGFwZHNndnphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1Nzg4NjcsImV4cCI6MjA5NzE1NDg2N30.usH9zMfaFakEv-H8Ls2UfRdupKQgQBkwEBSyL6vNXLI';
 
-// ─── CRITERIA & DESCRIPTIONS ─────────────────────────────────────
 const CRITERIA = [
-  "ความพร้อมในการบริหารร้านและทุ่มเทเวลา",
-  "ความคาดหวังด้านรายได้และความเข้าใจธุรกิจ",
-  "เป้าหมายทางธุรกิจและวิสัยทัศน์",
-  "ความเข้าใจและยอมรับมาตรฐาน QSC",
-  "ทัศนคติต่อการพัฒนาสินค้าและเมนูใหม่",
-  "ทัศนคติต่อการแข่งขันภายในแบรนด์",
-  "การรับมือสถานการณ์ฉุกเฉินและบริหารความเสี่ยง",
-  "การจัดการข้อร้องเรียนลูกค้า",
-  "ความร่วมมือกับบริษัทและการปฏิบัติตามนโยบาย",
-  "การสรรหา พัฒนา และรักษาบุคลากร",
+  { name:'1. ศักยภาพทางการเงิน',            descs:['ต่ำกว่าเกณฑ์มาก','ต่ำกว่าเกณฑ์','ปานกลาง','ดี','ดีมาก – มีทุนพร้อมเต็มที่'] },
+  { name:'2. ประสบการณ์ด้านธุรกิจ',          descs:['ไม่มีประสบการณ์','น้อยกว่า 1 ปี','1–3 ปี','3–5 ปี','มากกว่า 5 ปี – ผ่านธุรกิจหลายรูปแบบ'] },
+  { name:'3. ความตั้งใจและแรงจูงใจ',          descs:['ยังไม่ชัดเจน','ลังเลอยู่','ปานกลาง','ค่อนข้างตั้งใจ','ตั้งใจมาก – มีเป้าหมายชัดเจน'] },
+  { name:'4. ความเข้าใจแบรนด์และสินค้า',      descs:['ไม่รู้จักแบรนด์เลย','รู้จักเพียงเล็กน้อย','พอรู้จัก','รู้จักดี','รู้จักเป็นอย่างดี – เคยเป็นลูกค้า'] },
+  { name:'5. ศักยภาพทำเลที่ตั้ง',             descs:['ยังไม่มีทำเล','ทำเลไม่เหมาะสม','ทำเลปานกลาง','ทำเลดี','ทำเลดีมาก – ทราฟฟิกสูง'] },
+  { name:'6. ทักษะการบริหารจัดการ',            descs:['ต้องพัฒนามาก','น้อย','ปานกลาง','ดี','ดีเยี่ยม – เคยบริหารทีมมาก่อน'] },
+  { name:'7. ความพร้อมด้านเวลาและทรัพยากร',   descs:['ไม่พร้อมเลย','พร้อมบางส่วน','พร้อมปานกลาง','ค่อนข้างพร้อม','พร้อมเต็มที่ – ทุ่มเทได้เต็มเวลา'] },
+  { name:'8. ทัศนคติและบุคลิกภาพ',            descs:['ต้องปรับปรุงมาก','พอทำได้','ปานกลาง','ดี','ดีเยี่ยม – เป็นมืออาชีพ'] },
+  { name:'9. เครือข่ายและฐานลูกค้าเป้าหมาย', descs:['ไม่มีเครือข่ายเลย','น้อยมาก','น้อย','ปานกลาง','มาก – มีชุมชน/เครือข่ายแข็งแกร่ง'] },
+  { name:'10. การสื่อสารและการทำงานร่วมกัน',  descs:['สื่อสารได้ยาก','พอทำได้','ปานกลาง','ดี','ดีเยี่ยม – ทำงานร่วมกันได้ดีมาก'] },
 ];
 
-const DESCS = [
-  ["ไม่มีเวลาบริหารร้านและไม่มีผู้รับผิดชอบหลัก","มีเวลาจำกัด และยังไม่มีแผนบริหารที่ชัดเจน","มีเวลาเข้าดูแลเป็นบางช่วง และพึ่งพาผู้จัดการร้าน","มีเวลาบริหารร้านเป็นประจำ และมีแผนบริหารที่ชัดเจน","สามารถดูแลร้านได้ด้วยตนเองเต็มเวลา หรือมีผู้บริหารประจำที่มีประสบการณ์ชัดเจน"],
-  ["คาดหวังรายได้ไม่สอดคล้องกับความเป็นจริงของธุรกิจ","มุ่งหวังผลตอบแทนระยะสั้นมากเกินไป","เข้าใจภาพรวม แต่ยังมีความคาดหวังสูงกว่าความเป็นจริงบางส่วน","เข้าใจธุรกิจค่อนข้างดี และยอมรับความเสี่ยงได้","เข้าใจต้นทุน กำไร ระยะเวลาคืนทุน และมีความคาดหวังที่สมเหตุสมผล"],
-  ["ไม่มีเป้าหมายหรือวิสัยทัศน์ในการดำเนินธุรกิจ","เป้าหมายไม่ชัดเจน","มีเป้าหมายทั่วไป แต่ยังไม่มีแผนรองรับ","มีเป้าหมายที่ชัดเจนและเป็นไปได้","มีเป้าหมายระยะสั้นและระยะยาวชัดเจน รวมถึงแผนขยายธุรกิจ"],
-  ["ไม่ยอมรับหรือไม่เห็นความสำคัญของมาตรฐาน","มีแนวโน้มปรับเปลี่ยนมาตรฐานตามความเห็นส่วนตัว","เข้าใจหลักการ แต่ยังมีข้อสงสัยบางประเด็น","เข้าใจและยอมรับเป็นส่วนใหญ่","เข้าใจและยอมรับมาตรฐานทั้งหมด พร้อมปฏิบัติตามอย่างเคร่งครัด"],
-  ["ต่อต้านหรือไม่ต้องการเปลี่ยนแปลง","มีความกังวลหรือไม่ค่อยสนับสนุน","เปิดรับในระดับปานกลาง","ยอมรับและพร้อมทดลองเมนูใหม่","เปิดรับการเปลี่ยนแปลงและพร้อมสนับสนุนทุกแคมเปญ"],
-  ["มีทัศนคติเชิงลบอย่างชัดเจนต่อการขยายสาขา","ไม่เห็นด้วยกับการเปิดสาขาใกล้เคียง","มีข้อกังวลแต่ยังยอมรับได้","ยอมรับได้หากมีการบริหารพื้นที่เหมาะสม","เข้าใจกลยุทธ์พื้นที่ขายและมองการแข่งขันเป็นโอกาส"],
-  ["ไม่สามารถอธิบายแนวทางรับมือได้","ขาดการวางแผนและมักแก้ปัญหาเฉพาะหน้า","มีแนวคิดพื้นฐานในการแก้ปัญหา","มีความเข้าใจและวางแผนรับมือได้","มีประสบการณ์และสามารถเสนอแนวทางแก้ไขได้เป็นระบบ"],
-  ["ไม่ให้ความสำคัญกับข้อร้องเรียนลูกค้า","มีแนวโน้มหลีกเลี่ยงหรือโต้แย้งลูกค้า","สามารถรับมือได้ในระดับทั่วไป","มีทัศนคติที่ดีต่อการบริการและการแก้ไขปัญหา","ให้ความสำคัญกับลูกค้า มีแนวทางแก้ไขปัญหาอย่างมืออาชีพ"],
-  ["ไม่พร้อมปฏิบัติตามนโยบายบริษัท","มีข้อโต้แย้งหรือไม่เห็นด้วยกับหลายประเด็น","ยอมรับได้ในระดับทั่วไป","ให้ความร่วมมือดีและยอมรับกฎเกณฑ์","พร้อมปฏิบัติตามนโยบายและทำงานร่วมกับบริษัทอย่างเต็มที่"],
-  ["ไม่ให้ความสำคัญกับการบริหารบุคลากร","ขาดประสบการณ์หรือแนวทางที่ชัดเจน","มีความเข้าใจพื้นฐานในการบริหารทีม","เข้าใจการบริหารคนและสามารถวางแผนได้","มีประสบการณ์บริหารทีมงานและมีแนวทางรักษาพนักงานชัดเจน"],
-];
-
-// ─── STATE ───────────────────────────────────────────────────────
-let scores = Array(10).fill(0);
-let selectedBrand = "";
-let selectedImpression = "";
+/* ── State ──────────────────────────────── */
+let sb, user;
+let brand = '', impression = '';
+let scores = new Array(CRITERIA.length).fill(0);
 let records = [];
-let currentModal = null;
-let realtimeChannel = null;
+let editId = null, delId = null;
 
-// ─── SYNC UI ─────────────────────────────────────────────────────
-function showSync(type, text) {
-  const el = document.getElementById('sync-status');
-  const bar = document.getElementById('sync-bar');
-  el.className = 'sync-status show ' + type;
-  document.getElementById('sync-text').textContent = text;
-  bar.className = 'sync-bar ' + (type === 'loading' ? 'syncing' : '');
-  if (type !== 'loading') setTimeout(() => { el.classList.remove('show'); bar.className = 'sync-bar'; }, 3000);
+/* ── Boot ───────────────────────────────── */
+window.addEventListener('DOMContentLoaded', async () => {
+  sb = window.supabase.createClient(SB_URL, SB_KEY);
+  buildForm();
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { user = session.user; mountApp(); }
+
+  sb.auth.onAuthStateChange((ev, sess) => {
+    if (ev === 'SIGNED_IN') { user = sess.user; mountApp(); }
+    if (ev === 'SIGNED_OUT') { user = null; showLogin(); }
+  });
+});
+
+/* ── Auth ───────────────────────────────── */
+async function doLogin() {
+  const email = id('lEmail').value.trim();
+  const pass  = id('lPass').value;
+  id('lErr').textContent = '';
+  if (!email || !pass) { id('lErr').textContent = 'กรุณากรอกอีเมลและรหัสผ่าน'; return; }
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) id('lErr').textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่';
+}
+async function doLogout() { await sb.auth.signOut(); }
+
+function showLogin() {
+  id('loginScreen').style.display = 'flex';
+  id('app').style.display = 'none';
+}
+function mountApp() {
+  id('loginScreen').style.display = 'none';
+  id('app').style.display = 'block';
+  id('hUser').textContent = user?.email || '';
+  loadCRM();
 }
 
-// ─── MAP DB ROW → APP RECORD ──────────────────────────────────────
-function rowToRecord(row) {
-  return {
-    _id: row.id,
-    name: row.name,
-    phone: row.phone,
-    occupation: row.occupation || '',
-    province: row.province || '',
-    brand: row.brand,
-    scores: row.scores,
-    totalScore: row.total_score,
-    result: row.result,
-    impression: row.impression || '',
-    interviewer: row.interviewer || '',
-    strength: row.strength || '',
-    weakness: row.weakness || '',
-    notes: row.notes || '',
-    submittedAt: new Date(row.submitted_at).toLocaleString('th-TH'),
-    ts: new Date(row.submitted_at).getTime(),
-  };
+/* ── Tabs ───────────────────────────────── */
+function showTab(t) {
+  id('tabForm').style.display = t==='form' ? '' : 'none';
+  id('tabCRM').style.display  = t==='crm'  ? '' : 'none';
+  id('tForm').className = 'tab' + (t==='form'?' on':'');
+  id('tCRM').className  = 'tab' + (t==='crm' ?' on':'');
 }
 
-// ─── LOAD ALL RECORDS ─────────────────────────────────────────────
-async function loadRecords() {
-  showSync('loading', 'กำลังโหลดข้อมูล...');
-  const { data, error } = await db.from(TABLE).select('*').order('submitted_at', { ascending: false });
-  if (error) { showSync('err', 'โหลดข้อมูลไม่สำเร็จ'); console.error(error); return; }
-  records = data.map(rowToRecord);
-  updateBadge();
-  renderCRM();
-  showSync('ok', '🟢 เชื่อมต่อแล้ว · ' + records.length + ' รายการ');
+/* ── Form Builder ───────────────────────── */
+function buildForm() {
+  const wrap = id('criteriaWrap');
+  CRITERIA.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'criterion';
+    d.innerHTML = `
+      <div class="criterion-name">${h(c.name)}</div>
+      <div class="star-row">
+        ${[1,2,3,4,5].map(v=>`<button class="star-btn" id="s${i}_${v}" onclick="pickScore(${i},${v})">${v}</button>`).join('')}
+      </div>
+      <div class="star-desc" id="sd${i}"></div>`;
+    wrap.appendChild(d);
+  });
 }
 
-// ─── REALTIME SUBSCRIPTION ────────────────────────────────────────
-function subscribeRealtime() {
-  realtimeChannel = db.channel('franchise_crm_realtime')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: TABLE }, payload => {
-      const newRec = rowToRecord(payload.new);
-      records.unshift(newRec);
-      updateBadge();
-      renderCRM();
-      showSync('ok', '🟢 มีข้อมูลใหม่: ' + newRec.name);
-    })
-    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: TABLE }, payload => {
-      records = records.filter(r => r._id !== payload.old.id);
-      updateBadge();
-      renderCRM();
-      showSync('ok', '🗑️ ลบข้อมูลแล้ว');
-    })
-    .subscribe(status => {
-      if (status === 'SUBSCRIBED') showSync('ok', '🟢 ซิงก์แบบเรียลไทม์');
-      if (status === 'CHANNEL_ERROR') showSync('err', 'การเชื่อมต่อมีปัญหา');
-    });
+/* ── Form Logic ─────────────────────────── */
+function pickBrand(b) {
+  brand = b;
+  id('bJiancha').classList.toggle('on', b==='JIANCHA');
+  id('bPolly').classList.toggle('on', b==='Polly');
+}
+function pickImp(v) {
+  impression = v;
+  ['Pos','Neu','Neg'].forEach((x,i)=>{
+    id('imp'+x).classList.toggle('on', ['positive','neutral','negative'][i]===v);
+  });
+}
+function pickScore(i, v) {
+  scores[i] = v;
+  [1,2,3,4,5].forEach(n => id(`s${i}_${n}`).classList.toggle('on', n===v));
+  const sd = id(`sd${i}`);
+  sd.textContent = CRITERIA[i].descs[v-1];
+  sd.classList.add('show');
+  updateRing();
 }
 
-// ─── SUBMIT ───────────────────────────────────────────────────────
-async function handleSubmit() {
-  const name = document.getElementById("f-name").value.trim();
-  const phone = document.getElementById("f-phone").value.trim();
-  if (!name || !phone) { alert("กรุณากรอกชื่อ-นามสกุลและเบอร์โทรศัพท์"); return; }
-  if (!selectedBrand) { alert("กรุณาเลือกแบรนด์ที่สนใจ"); return; }
-  if (scores.includes(0)) { alert("กรุณาให้คะแนนทุกหัวข้อ (ข้อ 1-10)"); return; }
+function updateRing() {
+  const total = scores.reduce((a,b)=>a+b, 0);
+  const pct   = total / 50;
+  const circumference = 314;
+  id('ringArc').setAttribute('stroke-dashoffset', circumference * (1 - pct));
+  id('ringTxt').textContent = total;
 
-  const total = scores.reduce((a, b) => a + b, 0);
-  const result = getResult(total);
+  const res = id('ringResult');
+  if (total === 0) {
+    res.textContent = 'ยังไม่มีคะแนน'; res.className = 'ring-result res-none';
+  } else if (total >= 45) {
+    res.textContent = '✅ ผ่าน';       res.className = 'ring-result res-pass';
+  } else if (total >= 35) {
+    res.textContent = '⏳ รอพิจารณา'; res.className = 'ring-result res-pend';
+  } else {
+    res.textContent = '❌ ไม่ผ่าน';   res.className = 'ring-result res-fail';
+  }
+  return total;
+}
 
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'กำลังบันทึก...';
-  showSync('loading', 'กำลังบันทึกข้อมูล...');
+function calcResult(t) {
+  return t >= 45 ? 'ผ่าน' : t >= 35 ? 'รอพิจารณา' : 'ไม่ผ่าน';
+}
 
-  const { error } = await db.from(TABLE).insert({
-    name,
-    phone,
-    occupation: document.getElementById("f-occ").value.trim(),
-    province: document.getElementById("f-prov").value.trim(),
-    brand: selectedBrand,
-    scores: scores,
+async function submitForm() {
+  const name  = id('fName').value.trim();
+  const phone = id('fPhone').value.trim();
+  const errEl = id('fErr');
+  errEl.textContent = '';
+
+  if (!name)  { errEl.textContent = 'กรุณากรอกชื่อ-นามสกุล'; return; }
+  if (!phone) { errEl.textContent = 'กรุณากรอกเบอร์โทรศัพท์'; return; }
+  if (!brand) { errEl.textContent = 'กรุณาเลือกแบรนด์ที่สนใจ'; return; }
+  if (scores.some(s => s === 0)) {
+    errEl.textContent = 'กรุณาให้คะแนนทุกหัวข้อ (บางหัวข้อยังไม่ได้กรอก)'; return;
+  }
+
+  const total = scores.reduce((a,b) => a+b, 0);
+
+  const { error } = await sb.from('franchise_assessments').insert({
+    name, phone,
+    occupation:  id('fOcc').value.trim(),
+    province:    id('fProv').value.trim(),
+    brand, scores,
     total_score: total,
-    result,
-    impression: selectedImpression || null,
-    interviewer: document.getElementById("f-interviewer").value.trim() || null,
-    strength: document.getElementById("f-strength").value.trim() || null,
-    weakness: document.getElementById("f-weakness").value.trim() || null,
-    notes: document.getElementById("f-notes").value.trim() || null,
+    result:      calcResult(total),
+    impression,
+    interviewer: id('fIter').value.trim(),
+    strength:    id('fStr').value.trim(),
+    weakness:    id('fWeak').value.trim(),
+    notes:       id('fNote').value.trim(),
+    created_by:  user?.email || '',
   });
 
-  btn.disabled = false;
-  btn.textContent = 'บันทึกผลการประเมิน';
+  if (error) { errEl.textContent = 'เกิดข้อผิดพลาด: ' + error.message; return; }
 
-  if (error) {
-    showSync('err', 'บันทึกไม่สำเร็จ');
-    alert('เกิดข้อผิดพลาด: ' + error.message);
-    return;
-  }
-
-  showSync('ok', '✅ บันทึกสำเร็จ!');
-  document.getElementById("s-name").textContent = name;
-  document.getElementById("s-score").textContent = total;
-  document.getElementById("s-result-badge").innerHTML = `<span class="pill ${pillClass(result)}" style="font-size:14px;padding:6px 16px">${result} — ${getScoreLabel(total)}</span>`;
-  document.getElementById("view-form").style.display = "none";
-  document.getElementById("view-success").style.display = "block";
-}
-
-// ─── DELETE ───────────────────────────────────────────────────────
-async function deleteRecord(idx) {
-  const rec = records[idx];
-  if (!confirm("ต้องการลบข้อมูลของ " + rec.name + "?")) return;
-  showSync('loading', 'กำลังลบ...');
-  const { error } = await db.from(TABLE).delete().eq('id', rec._id);
-  if (error) { showSync('err', 'ลบไม่สำเร็จ'); return; }
-  // realtime will handle UI update
-}
-
-// ─── INIT CRITERIA UI ─────────────────────────────────────────────
-function initCriteria() {
-  const el = document.getElementById("criteria-list");
-  el.innerHTML = CRITERIA.map((c, i) => `
-    <div class="score-item" id="si-${i}">
-      <div class="score-row">
-        <span class="score-num">${i+1}.</span>
-        <div style="flex:1">
-          <div class="score-label">${c}</div>
-          <div class="score-btns">
-            ${[1,2,3,4,5].map(v => `<button class="score-btn" id="sb-${i}-${v}" onclick="setScore(${i},${v})">${v}</button>`).join("")}
-          </div>
-          <div class="score-descs" id="sd-${i}">
-            ${DESCS[i].map((d,di) => `
-              <div class="score-desc-row" id="sdr-${i}-${di+1}">
-                <span class="score-desc-dot inactive" id="sdd-${i}-${di+1}">${di+1}</span>
-                <span id="sdtext-${i}-${di+1}">${d}</span>
-              </div>`).join("")}
-          </div>
-        </div>
-      </div>
-    </div>`).join("");
-}
-
-function setScore(idx, val) {
-  scores[idx] = val;
-  for(let v=1;v<=5;v++) document.getElementById(`sb-${idx}-${v}`).classList.toggle("active", v===val);
-  document.getElementById(`si-${idx}`).classList.toggle("scored", val>0);
-  for(let v=1;v<=5;v++) {
-    const row = document.getElementById(`sdr-${idx}-${v}`);
-    const dot = document.getElementById(`sdd-${idx}-${v}`);
-    if(row && dot) { row.classList.toggle("highlight", v===val); dot.classList.toggle("active", v===val); dot.classList.toggle("inactive", v!==val); }
-  }
-  updateLiveScore();
-}
-
-function updateLiveScore() {
-  const total = scores.reduce((a,b)=>a+b,0);
-  document.getElementById("live-score").textContent = total;
-  const pct = (total/50)*100;
-  const bar = document.getElementById("score-bar");
-  bar.style.width = pct + "%";
-  bar.style.background = total>=45?"#065f46":total>=35?"#d97706":total>0?"#dc2626":"var(--gray-200)";
-  const resEl = document.getElementById("live-result");
-  if(total===0) resEl.innerHTML = '<span class="pill pill-gray">ยังไม่มีคะแนน</span>';
-  else resEl.innerHTML = `<span class="pill ${pillClass(getResult(total))}">${getScoreLabel(total)}</span>`;
-}
-
-function getResult(score) { return score>=45?"ผ่าน":score>=35?"รอพิจารณา":"ไม่ผ่าน"; }
-function getScoreLabel(score) { return score>=45?"เหมาะสมมาก":score>=40?"เหมาะสม":score>=35?"ผ่านเกณฑ์":"พิจารณาเพิ่มเติม"; }
-function pillClass(r) { return r==="ผ่าน"?"pill-pass":r==="รอพิจารณา"?"pill-wait":"pill-fail"; }
-
-function selectBrand(b) {
-  selectedBrand = b;
-  document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
-  const btn = document.getElementById("brand-"+b);
-  if(btn) { btn.classList.add("selected"); btn.textContent = "✓ "+b; }
-}
-
-function setImpression(val) {
-  selectedImpression = val;
-  document.querySelectorAll(".radio-opt").forEach(el => el.classList.remove("selected-pos","selected-neg","selected-neu"));
-  const map = {positive:"imp-pos",neutral:"imp-neu",negative:"imp-neg"};
-  const cls = {positive:"selected-pos",neutral:"selected-neu",negative:"selected-neg"};
-  document.getElementById(map[val]).classList.add(cls[val]);
+  id('formPanel').style.display = 'none';
+  id('successPanel').style.display = 'block';
+  id('successMsg').textContent = `ข้อมูลของ ${name} ถูกบันทึกแล้ว (${total}/50 คะแนน – ${calcResult(total)})`;
+  loadCRM();
 }
 
 function resetForm() {
-  scores = Array(10).fill(0); selectedBrand = ""; selectedImpression = "";
-  ["f-name","f-phone","f-occ","f-prov","f-interviewer","f-strength","f-weakness","f-notes"].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
-  document.querySelectorAll(".brand-btn").forEach(el => { el.classList.remove("selected"); el.textContent = el.id.replace("brand-",""); });
-  document.querySelectorAll(".score-btn").forEach(el => el.classList.remove("active"));
-  document.querySelectorAll(".score-item").forEach(el => el.classList.remove("scored"));
-  document.querySelectorAll(".score-desc-row").forEach(el => el.classList.remove("highlight"));
-  document.querySelectorAll(".score-desc-dot").forEach(el => { el.classList.remove("active"); el.classList.add("inactive"); });
-  document.querySelectorAll(".radio-opt").forEach(el => el.classList.remove("selected-pos","selected-neg","selected-neu"));
-  updateLiveScore();
-  showView("form");
+  ['fName','fPhone','fOcc','fProv','fIter','fStr','fWeak','fNote'].forEach(x => id(x).value = '');
+  brand = ''; impression = '';
+  scores = new Array(CRITERIA.length).fill(0);
+  document.querySelectorAll('.brand-btn,.imp-btn,.star-btn').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('.star-desc').forEach(el => { el.textContent=''; el.classList.remove('show'); });
+  updateRing();
+  id('fErr').textContent = '';
+  id('formPanel').style.display = '';
+  id('successPanel').style.display = 'none';
+  window.scrollTo(0,0);
 }
 
-function showView(v) {
-  document.getElementById("view-form").style.display = v==="form"?"block":"none";
-  document.getElementById("view-success").style.display = "none";
-  document.getElementById("view-crm").style.display = v==="crm"?"block":"none";
-  document.getElementById("tab-form").classList.toggle("active", v==="form");
-  document.getElementById("tab-crm").classList.toggle("active", v==="crm");
-  if(v==="crm") renderCRM();
+/* ── CRM ─────────────────────────────────── */
+async function loadCRM() {
+  const { data, error } = await sb
+    .from('franchise_assessments')
+    .select('*')
+    .is('deleted_at', null)
+    .order('submitted_at', { ascending: false });
+
+  if (error) { console.error(error); return; }
+  records = data || [];
+
+  // stats
+  id('sAll').textContent  = records.length;
+  id('sPass').textContent = records.filter(r => r.result === 'ผ่าน').length;
+  id('sPend').textContent = records.filter(r => r.result === 'รอพิจารณา').length;
+  id('sFail').textContent = records.filter(r => r.result === 'ไม่ผ่าน').length;
+
+  const badge = id('crmBadge');
+  if (records.length > 0) { badge.textContent = records.length; badge.style.display = ''; }
+  else badge.style.display = 'none';
+
+  renderList();
 }
 
-function updateBadge() { document.getElementById("crm-count").textContent = records.length; }
+function renderList() {
+  const bFilter = id('fBrand').value;
+  const rFilter = id('fResult').value;
+  const sort    = id('fSort').value;
 
-function quickFilter(val) {
-  document.getElementById("f-result").value = val;
-  ["all","pass","wait","fail"].forEach(k => document.getElementById("sc-"+k)?.classList.remove("active-filter"));
-  const map = {all:"sc-all","ผ่าน":"sc-pass","รอพิจารณา":"sc-wait","ไม่ผ่าน":"sc-fail"};
-  if(map[val]) document.getElementById(map[val]).classList.add("active-filter");
-  renderCRM();
-}
-
-function getFiltered() {
-  const search = document.getElementById("f-search").value.toLowerCase();
-  const brand = document.getElementById("f-brand").value;
-  const result = document.getElementById("f-result").value;
-  const sort = document.getElementById("f-sort").value;
-  let arr = records.filter(r =>
-    (!search || r.name.toLowerCase().includes(search) || r.phone.includes(search) || (r.province||"").toLowerCase().includes(search)) &&
-    (brand==="all" || r.brand===brand) &&
-    (result==="all" || r.result===result)
+  let list = records.filter(r =>
+    (!bFilter || r.brand === bFilter) &&
+    (!rFilter || r.result === rFilter)
   );
-  if(sort==="oldest") arr=[...arr].sort((a,b)=>(a.ts||0)-(b.ts||0));
-  else if(sort==="score-desc") arr=[...arr].sort((a,b)=>b.totalScore-a.totalScore);
-  else if(sort==="score-asc") arr=[...arr].sort((a,b)=>a.totalScore-b.totalScore);
-  else if(sort==="name-asc") arr=[...arr].sort((a,b)=>a.name.localeCompare(b.name,"th"));
-  return arr;
-}
 
-function renderCRM() {
-  const pass = records.filter(r=>r.result==="ผ่าน").length;
-  const wait = records.filter(r=>r.result==="รอพิจารณา").length;
-  const fail = records.filter(r=>r.result==="ไม่ผ่าน").length;
-  document.getElementById("stat-all").textContent = records.length;
-  document.getElementById("stat-pass").textContent = pass;
-  document.getElementById("stat-wait").textContent = wait;
-  document.getElementById("stat-fail").textContent = fail;
-  document.getElementById("crm-total-label").textContent = records.length + " รายการทั้งหมด";
-  updateBadge();
+  switch(sort) {
+    case 'oldest':  list.sort((a,b) => +new Date(a.submitted_at) - +new Date(b.submitted_at)); break;
+    case 'score_h': list.sort((a,b) => b.total_score - a.total_score); break;
+    case 'score_l': list.sort((a,b) => a.total_score - b.total_score); break;
+    case 'name':    list.sort((a,b) => a.name.localeCompare(b.name)); break;
+    default:        list.sort((a,b) => +new Date(b.submitted_at) - +new Date(a.submitted_at));
+  }
 
-  const filtered = getFiltered();
-  const list = document.getElementById("crm-list");
-  if(filtered.length===0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>
-      <div class="empty-msg">${records.length===0?"ยังไม่มีข้อมูล":"ไม่พบข้อมูลที่ค้นหา"}</div>
-      ${records.length===0?'<div class="empty-sub">เริ่มประเมินผู้ลงทุนได้เลย</div>':""}</div>`;
+  const wrap = id('listWrap');
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-ico">📭</div>ไม่พบข้อมูล</div>`;
     return;
   }
-  const impIcon = {positive:"👍",neutral:"👌",negative:"👎"};
-  list.innerHTML = filtered.map(r => {
-    const ri = records.indexOf(r);
-    const chips = r.scores.map((s,si) => `<div class="score-chip ${s>=4?"hi":s===3?"mid":"lo"}" title="${CRITERIA[si]}: ${DESCS[si][s-1]}">${s}</div>`).join("");
-    const notePreview = r.strength?"💪 "+r.strength:(r.notes?"📝 "+r.notes:"");
+
+  wrap.innerHTML = list.map(r => {
+    const date = new Date(r.submitted_at).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});
+    const bc = r.result === 'ผ่าน' ? 'b-pass' : r.result === 'รอพิจารณา' ? 'b-pend' : 'b-fail';
+    const ic = r.result === 'ผ่าน' ? '✅' : r.result === 'รอพิจารณา' ? '⏳' : '❌';
     return `
-    <div class="record-card">
-      <div class="record-top">
-        <div class="record-avatar">${r.name.charAt(0)}</div>
-        <div class="record-info">
-          <div class="record-name">${r.name} ${r.impression?impIcon[r.impression]:""}</div>
-          <div class="record-meta">${r.phone}${r.province?" · "+r.province:""}${r.occupation?" · "+r.occupation:""}${r.interviewer?" · สัมภาษณ์โดย: "+r.interviewer:""}</div>
-        </div>
-        <div class="record-right">
-          <span class="pill" style="background:var(--gray-100);color:var(--gray-600);border-color:var(--gray-200);font-size:12px">${r.brand}</span>
-          <div><span class="record-score">${r.totalScore}</span><span class="record-denom">/50</span></div>
-          <span class="pill ${pillClass(r.result)}">${r.result}</span>
-          <div class="record-actions">
-            <button class="icon-btn" title="ดูรายละเอียด" onclick="openModal(${ri})">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/></svg>
-            </button>
-            <button class="icon-btn" title="Export PDF" onclick="exportPDF(records[${ri}])">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" stroke-width="2"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-            <button class="icon-btn red" title="ลบ" onclick="deleteRecord(${ri})">
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
+      <div class="rec">
+        <div>
+          <div class="rec-name">${h(r.name)}</div>
+          <div class="rec-meta">
+            <span class="badge b-brand">${h(r.brand)}</span>
+            <span class="badge ${bc}">${ic} ${h(r.result)}</span>
+            <span class="rec-score">${r.total_score}/50</span>
+            ${r.province ? `<span>📍 ${h(r.province)}</span>` : ''}
+            <span>📅 ${date}</span>
+            ${r.interviewer ? `<span>👤 ${h(r.interviewer)}</span>` : ''}
           </div>
         </div>
+        <div class="rec-btns">
+          <button class="btn btn-outline btn-sm" onclick="openDetail('${r.id}')">ดู</button>
+          <button class="btn btn-outline btn-sm" onclick="openEdit('${r.id}')">✏️</button>
+          <button class="btn btn-red btn-sm"     onclick="openDel('${r.id}')">🗑️</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Detail ──────────────────────────────── */
+function openDetail(id_) {
+  const r = records.find(x => x.id === id_);
+  if (!r) return;
+  const bc = r.result === 'ผ่าน' ? 'b-pass' : r.result === 'รอพิจารณา' ? 'b-pend' : 'b-fail';
+  const ic = r.result === 'ผ่าน' ? '✅' : r.result === 'รอพิจารณา' ? '⏳' : '❌';
+  const date = new Date(r.submitted_at).toLocaleString('th-TH');
+
+  const scoreRows = (r.scores || []).map((s,i) =>
+    `<tr>
+      <td style="font-size:13px;color:var(--muted);padding:5px 0">${h(CRITERIA[i]?.name||`หัวข้อ ${i+1}`)}</td>
+      <td style="text-align:right;font-weight:700;padding:5px 0">${s}/5</td>
+    </tr>`
+  ).join('');
+
+  id('detailBody').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:20px;font-weight:800">${h(r.name)}</div>
+      <div style="margin-top:6px">
+        <span class="badge b-brand">${h(r.brand)}</span>&nbsp;
+        <span class="badge ${bc}">${ic} ${h(r.result)}</span>
       </div>
-      <div class="scores-mini">${chips}</div>
-      ${notePreview?`<div class="record-note-preview">${notePreview}</div>`:""}
-      <div class="record-date">${r.submittedAt}</div>
-    </div>`;
-  }).join("");
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px">
+      <tr><td style="color:var(--muted);font-size:13px;padding:4px 0;width:100px">เบอร์โทร</td><td style="font-weight:600">${h(r.phone)}</td></tr>
+      <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">อาชีพ</td><td>${h(r.occupation||'–')}</td></tr>
+      <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">จังหวัด</td><td>${h(r.province||'–')}</td></tr>
+      <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">ผู้สัมภาษณ์</td><td>${h(r.interviewer||'–')}</td></tr>
+      <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">วันที่</td><td>${date}</td></tr>
+    </table>
+    <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">คะแนนรายหัวข้อ</div>
+      <table style="width:100%;border-collapse:collapse">${scoreRows}</table>
+      <div style="border-top:2px solid var(--border);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:700">คะแนนรวม</span>
+        <span style="font-size:22px;font-weight:800;color:var(--teal)">${r.total_score}/50</span>
+      </div>
+    </div>
+    ${r.strength ? `<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--pass);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">✅ จุดเด่น</div><div style="font-size:14px">${h(r.strength)}</div></div>` : ''}
+    ${r.weakness ? `<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">⚠️ จุดที่ควรพัฒนา</div><div style="font-size:14px">${h(r.weakness)}</div></div>` : ''}
+    ${r.notes    ? `<div><div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📝 หมายเหตุ</div><div style="font-size:14px">${h(r.notes)}</div></div>` : ''}
+  `;
+  id('detailOverlay').classList.add('open');
 }
+function closeDetail() { id('detailOverlay').classList.remove('open'); }
 
-function openModal(idx) {
-  const r = records[idx];
-  currentModal = r;
-  const impLabel = {positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
-  document.getElementById("m-name").textContent = r.name;
-  document.getElementById("m-meta").textContent = [r.phone,r.province,r.occupation].filter(Boolean).join(" · ");
-  document.getElementById("m-tags").innerHTML =
-    `<span class="tag">${r.brand}</span>`+
-    (r.interviewer?`<span class="tag">สัมภาษณ์โดย: ${r.interviewer}</span>`:"")+
-    (r.impression?`<span class="tag">${impLabel[r.impression]}</span>`:"")+
-    `<span class="tag">${r.submittedAt}</span>`+
-    `<span class="pill ${pillClass(r.result)}">${r.result}</span>`;
-  document.getElementById("m-score").textContent = r.totalScore;
-  document.getElementById("m-result").innerHTML = `<span class="pill ${pillClass(r.result)}" style="font-size:14px;padding:6px 14px">${getScoreLabel(r.totalScore)}</span>`;
-  document.getElementById("m-criteria").innerHTML = CRITERIA.map((c,i) => `
-    <div class="modal-criterion">
-      <span class="modal-cnum">${i+1}.</span>
-      <span class="modal-clabel">${c}</span>
-      <div class="modal-dots">${[1,2,3,4,5].map(v=>`<div class="modal-dot ${r.scores[i]===v?"active":""}" title="${DESCS[i][v-1]}">${v}</div>`).join("")}</div>
-    </div>`).join("");
-  const noteParts=[];
-  if(r.strength) noteParts.push(`<div style="margin-bottom:8px"><strong>💪 จุดเด่น:</strong><br>${r.strength}</div>`);
-  if(r.weakness) noteParts.push(`<div style="margin-bottom:8px"><strong>⚠️ จุดที่ควรพัฒนา:</strong><br>${r.weakness}</div>`);
-  if(r.notes) noteParts.push(`<div><strong>📝 หมายเหตุ:</strong><br>${r.notes}</div>`);
-  const notesBox=document.getElementById("m-notes-box");
-  if(noteParts.length>0) { document.getElementById("m-notes-content").innerHTML=noteParts.join(""); notesBox.style.display="block"; }
-  else notesBox.style.display="none";
-  document.getElementById("modal").style.display="flex";
+/* ── Edit ────────────────────────────────── */
+function openEdit(id_) {
+  const r = records.find(x => x.id === id_);
+  if (!r) return;
+  editId = id_;
+  id('eName').value   = r.name;
+  id('ePhone').value  = r.phone;
+  id('eOcc').value    = r.occupation  || '';
+  id('eProv').value   = r.province    || '';
+  id('eBrand').value  = r.brand;
+  id('eResult').value = r.result;
+  id('eStr').value    = r.strength    || '';
+  id('eWeak').value   = r.weakness    || '';
+  id('eNote').value   = r.notes       || '';
+  id('eErr').textContent = '';
+  id('editOverlay').classList.add('open');
 }
+async function saveEdit() {
+  const name  = id('eName').value.trim();
+  const phone = id('ePhone').value.trim();
+  if (!name || !phone) { id('eErr').textContent = 'กรุณากรอกชื่อและเบอร์โทรศัพท์'; return; }
+  const { error } = await sb.from('franchise_assessments').update({
+    name, phone,
+    occupation: id('eOcc').value.trim(),
+    province:   id('eProv').value.trim(),
+    brand:      id('eBrand').value,
+    result:     id('eResult').value,
+    strength:   id('eStr').value.trim(),
+    weakness:   id('eWeak').value.trim(),
+    notes:      id('eNote').value.trim(),
+  }).eq('id', editId);
+  if (error) { id('eErr').textContent = 'เกิดข้อผิดพลาด: ' + error.message; return; }
+  closeEdit(); loadCRM();
+}
+function closeEdit() { id('editOverlay').classList.remove('open'); editId = null; }
 
-function closeModal(e) { if(e.target===document.getElementById("modal")) document.getElementById("modal").style.display="none"; }
+/* ── Soft Delete ─────────────────────────── */
+function openDel(id_) { delId = id_; id('delOverlay').classList.add('open'); }
+async function confirmDel() {
+  if (!delId) return;
+  const { error } = await sb.from('franchise_assessments')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', delId);
+  if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); return; }
+  closeDel(); loadCRM();
+}
+function closeDel() { id('delOverlay').classList.remove('open'); delId = null; }
 
+/* ── Export CSV ──────────────────────────── */
 function exportCSV() {
-  const filtered = getFiltered();
-  const headers = ["ชื่อ-นามสกุล","เบอร์โทร","อาชีพ","จังหวัด","แบรนด์",...CRITERIA.map((_,i)=>`ข้อ ${i+1}`),"คะแนนรวม","ผลการพิจารณา","ความประทับใจ","ผู้สัมภาษณ์","จุดเด่น","จุดที่ควรพัฒนา","หมายเหตุ","วันที่"];
-  const impTxt={positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"};
-  const rows=filtered.map(r=>[r.name,r.phone,r.occupation||"",r.province||"",r.brand,...r.scores,r.totalScore,r.result,r.impression?impTxt[r.impression]:"",r.interviewer||"",r.strength||"",r.weakness||"",r.notes||"",r.submittedAt]);
-  const csv=[headers,...rows].map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download="franchise_assessment_"+Date.now()+".csv";a.click();
-  URL.revokeObjectURL(url);
+  if (!records.length) { alert('ไม่มีข้อมูล'); return; }
+  const heads = ['ชื่อ-นามสกุล','เบอร์โทร','อาชีพ','จังหวัด','แบรนด์','คะแนนรวม','ผลการประเมิน','ผู้สัมภาษณ์','จุดเด่น','ข้อกังวล','หมายเหตุ','วันที่'];
+  const rows  = records.map(r => [
+    r.name, r.phone, r.occupation||'', r.province||'', r.brand,
+    r.total_score, r.result, r.interviewer||'',
+    r.strength||'', r.weakness||'', r.notes||'',
+    new Date(r.submitted_at).toLocaleDateString('th-TH'),
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv  = '\uFEFF' + [heads.join(','), ...rows].join('\n');
+  const a    = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8;' })),
+    download: `franchise_crm_${new Date().toISOString().split('T')[0]}.csv`,
+  });
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
-function exportPDF(r) {
-  document.getElementById("modal").style.display="none";
-  const w=window.open("","_blank");
-  if(!w){alert("กรุณาอนุญาต popup เพื่อ export PDF");return;}
-  const scoreRows=CRITERIA.map((c,i)=>`<tr><td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#374151;vertical-align:top">${i+1}</td><td style="padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;vertical-align:top"><div style="font-weight:700;margin-bottom:3px">${c}</div><div style="font-size:11px;color:#6b7280">${DESCS[i][r.scores[i]-1]}</div></td>${[1,2,3,4,5].map(v=>`<td style="padding:8px 10px;border:1px solid #e5e7eb;text-align:center;font-size:13px;font-weight:700;vertical-align:top;${r.scores[i]===v?"background:#065f46;color:white;":"color:#d1d5db;"}">${r.scores[i]===v?"●":"○"}</td>`).join("")}</tr>`).join("");
-  const resColor=r.result==="ผ่าน"?"#065f46":r.result==="รอพิจารณา"?"#92400e":"#991b1b";
-  const impLabel={positive:"👍 ดีมาก",neutral:"👌 ปานกลาง",negative:"👎 ต้องปรับปรุง"};
-  const notesSection=(r.strength||r.weakness||r.notes)?`<div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden"><div style="background:#f9fafb;padding:10px 14px;font-size:12px;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb">หมายเหตุและความคิดเห็นผู้สัมภาษณ์</div><div style="padding:14px;display:grid;gap:10px">${r.strength?`<div><div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:3px">💪 จุดเด่น</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.strength}</div></div>`:""} ${r.weakness?`<div><div style="font-size:11px;font-weight:700;color:#dc2626;margin-bottom:3px">⚠️ จุดที่ควรพัฒนา</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.weakness}</div></div>`:""} ${r.notes?`<div><div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:3px">📝 หมายเหตุเพิ่มเติม</div><div style="font-size:13px;color:#374151;line-height:1.6">${r.notes}</div></div>`:""}</div></div>`:"";
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>แบบประเมิน - ${r.name}</title><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{font-family:'Sarabun',sans-serif;margin:0;padding:32px;color:#111;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #065f46;padding-bottom:14px;margin-bottom:18px}.brand-tag{background:#065f46;color:#fff;padding:3px 12px;border-radius:100px;font-size:12px;font-weight:700;display:inline-block;margin-top:7px}.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:18px}.info-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;padding:8px 12px}.info-lbl{font-size:10px;color:#9ca3af;margin-bottom:2px}.info-val{font-size:13px;font-weight:700}table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}th{background:#065f46;color:#fff;padding:9px 10px;text-align:left;font-size:12px;font-weight:700}.summary{display:flex;justify-content:space-between;align-items:center;background:#f0fdf4;border:2px solid #065f46;border-radius:10px;padding:14px 22px;margin-bottom:12px}.score-big{font-size:44px;font-weight:800;color:#065f46;line-height:1}.result-chip{display:inline-block;padding:7px 22px;border-radius:100px;font-size:18px;font-weight:800;color:#fff;background:${resColor}}.footer{font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;margin-top:6px}@media print{body{padding:18px}}</style></head><body><div class="hdr"><div><div style="font-size:20px;font-weight:800;color:#065f46">แบบประเมินผู้ลงทุนแฟรนไชส์</div><div style="font-size:12px;color:#9ca3af;margin-top:2px">วันที่ประเมิน: ${r.submittedAt}${r.interviewer?" | ผู้สัมภาษณ์: "+r.interviewer:""}</div><div class="brand-tag">${r.brand}</div></div><div style="text-align:right;font-size:10px;color:#d1d5db">CONFIDENTIAL</div></div><div class="info-grid"><div class="info-box"><div class="info-lbl">ชื่อ-นามสกุล</div><div class="info-val">${r.name}</div></div><div class="info-box"><div class="info-lbl">เบอร์โทรศัพท์</div><div class="info-val">${r.phone}</div></div><div class="info-box"><div class="info-lbl">อาชีพปัจจุบัน</div><div class="info-val">${r.occupation||"-"}</div></div><div class="info-box"><div class="info-lbl">จังหวัดที่ต้องการเปิดสาขา</div><div class="info-val">${r.province||"-"}</div></div></div><table><thead><tr><th style="width:30px">ข้อ</th><th>หัวข้อประเมิน / เกณฑ์ที่ได้รับ</th><th style="width:34px;text-align:center">1</th><th style="width:34px;text-align:center">2</th><th style="width:34px;text-align:center">3</th><th style="width:34px;text-align:center">4</th><th style="width:34px;text-align:center">5</th></tr></thead><tbody>${scoreRows}</tbody></table><div class="summary"><div><div style="font-size:12px;color:#374151;margin-bottom:3px">คะแนนรวม</div><div><span class="score-big">${r.totalScore}</span><span style="font-size:20px;color:#9ca3af"> / 50</span></div><div style="font-size:12px;color:#6b7280;margin-top:3px">${getScoreLabel(r.totalScore)}${r.impression?" · ความประทับใจ: "+{positive:"ดีมาก",neutral:"ปานกลาง",negative:"ต้องปรับปรุง"}[r.impression]:""}</div></div><div style="text-align:right"><div style="font-size:12px;color:#374151;margin-bottom:7px">ผลการพิจารณา</div><div class="result-chip">${r.result}</div></div></div>${notesSection}<div class="footer">เกณฑ์การพิจารณา: 45-50 คะแนน = เหมาะสมมาก | 40-44 คะแนน = เหมาะสม | 35-39 คะแนน = ผ่านเกณฑ์ | ต่ำกว่า 35 คะแนน = พิจารณาเพิ่มเติม</div><script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script></body></html>`);
-  w.document.close();
-}
+/* ── Utils ───────────────────────────────── */
+function id(x) { return document.getElementById(x); }
+function h(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ─── BOOT ─────────────────────────────────────────────────────────
-initCriteria();
-updateLiveScore();
-document.getElementById("sc-all").classList.add("active-filter");
+/* ── Close overlays on backdrop click ─── */
+['editOverlay','delOverlay','detailOverlay'].forEach(name => {
+  id(name).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
 
-// Create table if not exists, then load & subscribe
-(async () => {
-  // Try to create table via RPC or just load (table must exist)
-  await loadRecords();
-  subscribeRealtime();
-})();
+/* ── Login on Enter ──────────────────────── */
+id('lPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+id('lEmail').addEventListener('keydown', e => { if (e.key === 'Enter') id('lPass').focus(); });
 </script>
 </body>
 </html>

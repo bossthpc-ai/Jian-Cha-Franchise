@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ──────────────────────────────────────────
    TOKENS
@@ -323,6 +324,16 @@ body{
 }
 
 .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* ── Print Styles ────────────────────── */
+@media print {
+  body { background: #fff; }
+  #detailOverlay { position: static; background: none; }
+  .modal { max-width: none; max-height: none; box-shadow: none; border: none; }
+  .mhead, .mfoot { display: none; }
+  #detailBody { padding: 0; }
+  #detailBody table { page-break-inside: avoid; }
+}
 </style>
 </head>
 <body>
@@ -538,6 +549,7 @@ body{
         </select>
       </div>
     </div>
+    <div class="field"><label>เซลล์ผู้ดูแล</label><input type="text" id="eSalesman" placeholder="ชื่อพนักงานขาย"/></div>
     <div class="field"><label>จุดเด่น</label><textarea id="eStr" rows="2"></textarea></div>
     <div class="field"><label>จุดที่ควรพัฒนา</label><textarea id="eWeak" rows="2"></textarea></div>
     <div class="field"><label>หมายเหตุ</label><textarea id="eNote" rows="2"></textarea></div>
@@ -571,6 +583,7 @@ body{
     </div>
     <div id="detailBody"></div>
     <div class="mfoot">
+      <button class="btn btn-outline btn-sm" onclick="exportDetailPNG()" id="pngBtn">🖼️ PNG</button>
       <button class="btn btn-outline btn-sm" onclick="window.print()">📄 Print / PDF</button>
       <button class="btn btn-outline" onclick="closeDetail()">ปิด</button>
     </div>
@@ -824,6 +837,7 @@ function renderList() {
             ${r.province ? `<span>📍 ${h(r.province)}</span>` : ''}
             <span>📅 ${date}</span>
             ${r.interviewer ? `<span>👤 ${h(r.interviewer)}</span>` : ''}
+            ${r.salesman ? `<span>💼 ${h(r.salesman)}</span>` : ''}
           </div>
         </div>
         <div class="rec-btns">
@@ -863,6 +877,7 @@ function openDetail(id_) {
       <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">อาชีพ</td><td>${h(r.occupation||'–')}</td></tr>
       <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">จังหวัด</td><td>${h(r.province||'–')}</td></tr>
       <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">ผู้สัมภาษณ์</td><td>${h(r.interviewer||'–')}</td></tr>
+      <tr><td style="color:var(--teal);font-size:13px;padding:4px 0">💼 เซลล์ผู้ดูแล</td><td>${h(r.salesman||'–')}</td></tr>
       <tr><td style="color:var(--muted);font-size:13px;padding:4px 0">วันที่</td><td>${date}</td></tr>
     </table>
     <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:14px">
@@ -886,15 +901,16 @@ function openEdit(id_) {
   const r = records.find(x => x.id === id_);
   if (!r) return;
   editId = id_;
-  id('eName').value   = r.name;
-  id('ePhone').value  = r.phone;
-  id('eOcc').value    = r.occupation  || '';
-  id('eProv').value   = r.province    || '';
-  id('eBrand').value  = r.brand;
-  id('eResult').value = r.result;
-  id('eStr').value    = r.strength    || '';
-  id('eWeak').value   = r.weakness    || '';
-  id('eNote').value   = r.notes       || '';
+  id('eName').value    = r.name;
+  id('ePhone').value   = r.phone;
+  id('eOcc').value     = r.occupation  || '';
+  id('eProv').value    = r.province    || '';
+  id('eBrand').value   = r.brand;
+  id('eResult').value  = r.result;
+  id('eSalesman').value = r.salesman || '';
+  id('eStr').value     = r.strength    || '';
+  id('eWeak').value    = r.weakness    || '';
+  id('eNote').value    = r.notes       || '';
   id('eErr').textContent = '';
   id('editOverlay').classList.add('open');
 }
@@ -908,6 +924,7 @@ async function saveEdit() {
     province:   id('eProv').value.trim(),
     brand:      id('eBrand').value,
     result:     id('eResult').value,
+    salesman:   id('eSalesman').value.trim(),
     strength:   id('eStr').value.trim(),
     weakness:   id('eWeak').value.trim(),
     notes:      id('eNote').value.trim(),
@@ -932,10 +949,10 @@ function closeDel() { id('delOverlay').classList.remove('open'); delId = null; }
 /* ── Export CSV ──────────────────────────── */
 function exportCSV() {
   if (!records.length) { alert('ไม่มีข้อมูล'); return; }
-  const heads = ['ชื่อ-นามสกุล','เบอร์โทร','อาชีพ','จังหวัด','แบรนด์','คะแนนรวม','ผลการประเมิน','ผู้สัมภาษณ์','จุดเด่น','ข้อกังวล','หมายเหตุ','วันที่'];
+  const heads = ['ชื่อ-นามสกุล','เบอร์โทร','อาชีพ','จังหวัด','แบรนด์','คะแนนรวม','ผลการประเมิน','ผู้สัมภาษณ์','เซลล์ผู้ดูแล','จุดเด่น','ข้อกังวล','หมายเหตุ','วันที่'];
   const rows  = records.map(r => [
     r.name, r.phone, r.occupation||'', r.province||'', r.brand,
-    r.total_score, r.result, r.interviewer||'',
+    r.total_score, r.result, r.interviewer||'', r.salesman||'',
     r.strength||'', r.weakness||'', r.notes||'',
     new Date(r.submitted_at).toLocaleDateString('th-TH'),
   ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
@@ -945,6 +962,45 @@ function exportCSV() {
     download: `franchise_crm_${new Date().toISOString().split('T')[0]}.csv`,
   });
   a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ── Export PNG via Screenshot ──────────────────────────── */
+function exportDetailPNG() {
+  const r = records.find(x => x.id === editId);
+  if (!r) return;
+
+  const btn = id('pngBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังสร้าง...';
+
+  setTimeout(async () => {
+    try {
+      const element = id('detailBody');
+      const canvas = await html2canvas(element, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 600,
+        windowHeight: element.scrollHeight,
+      });
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `${r.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.png`;
+      link.click();
+
+      btn.disabled = false;
+      btn.textContent = originalText;
+    } catch(e) {
+      console.error('PNG Export Error:', e);
+      alert('PNG export failed. Try Print/PDF instead: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }, 100);
 }
 
 /* ── Utils ───────────────────────────────── */
